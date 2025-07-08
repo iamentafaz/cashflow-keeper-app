@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Receipt } from "lucide-react";
+import { Calendar, Receipt, Edit, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 
 interface Expense {
@@ -13,6 +14,8 @@ interface Expense {
 
 interface ExpenseListProps {
   expenses: Expense[];
+  onEditExpense: (expense: Expense) => void;
+  onDeleteExpense: (id: string) => void;
 }
 
 const categoryColors: Record<string, string> = {
@@ -27,7 +30,7 @@ const categoryColors: Record<string, string> = {
   "Other": "bg-gray-100 text-gray-800"
 };
 
-export function ExpenseList({ expenses }: ExpenseListProps) {
+export function ExpenseList({ expenses, onEditExpense, onDeleteExpense }: ExpenseListProps) {
   if (expenses.length === 0) {
     return (
       <Card className="shadow-card">
@@ -70,10 +73,28 @@ export function ExpenseList({ expenses }: ExpenseListProps) {
                 {format(expense.date, "MMM dd, yyyy")}
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-lg font-semibold text-primary">
-                ${expense.amount.toFixed(2)}
-              </p>
+            <div className="flex items-center gap-2">
+              <div className="text-right mr-2">
+                <p className="text-lg font-semibold text-primary">
+                  ${expense.amount.toFixed(2)}
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onEditExpense(expense)}
+                className="h-8 w-8 p-0"
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onDeleteExpense(expense.id)}
+                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         ))}

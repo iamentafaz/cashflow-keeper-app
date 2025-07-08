@@ -15,6 +15,7 @@ interface Expense {
 
 const Index = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
 
   const handleAddExpense = (newExpense: Omit<Expense, 'id'>) => {
     const expense: Expense = {
@@ -22,6 +23,25 @@ const Index = () => {
       id: Date.now().toString()
     };
     setExpenses(prev => [expense, ...prev]);
+  };
+
+  const handleUpdateExpense = (id: string, updatedExpense: Omit<Expense, 'id'>) => {
+    setExpenses(prev => prev.map(expense => 
+      expense.id === id ? { ...updatedExpense, id } : expense
+    ));
+    setEditingExpense(null);
+  };
+
+  const handleEditExpense = (expense: Expense) => {
+    setEditingExpense(expense);
+  };
+
+  const handleDeleteExpense = (id: string) => {
+    setExpenses(prev => prev.filter(expense => expense.id !== id));
+  };
+
+  const handleCancelEdit = () => {
+    setEditingExpense(null);
   };
 
   return (
@@ -55,12 +75,21 @@ const Index = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Expense Form */}
           <div>
-            <ExpenseForm onAddExpense={handleAddExpense} />
+            <ExpenseForm 
+              onAddExpense={handleAddExpense}
+              onUpdateExpense={handleUpdateExpense}
+              editingExpense={editingExpense}
+              onCancelEdit={handleCancelEdit}
+            />
           </div>
 
           {/* Expense List */}
           <div>
-            <ExpenseList expenses={expenses} />
+            <ExpenseList 
+              expenses={expenses}
+              onEditExpense={handleEditExpense}
+              onDeleteExpense={handleDeleteExpense}
+            />
           </div>
         </div>
 

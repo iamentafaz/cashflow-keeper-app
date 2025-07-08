@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Plus } from "lucide-react";
+import { CalendarIcon, Plus, Edit } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +20,9 @@ interface Expense {
 
 interface ExpenseFormProps {
   onAddExpense: (expense: Omit<Expense, 'id'>) => void;
+  onUpdateExpense: (id: string, expense: Omit<Expense, 'id'>) => void;
+  editingExpense: Expense | null;
+  onCancelEdit: () => void;
 }
 
 const categories = [
@@ -34,24 +37,50 @@ const categories = [
   "Other"
 ];
 
-export function ExpenseForm({ onAddExpense }: ExpenseFormProps) {
+export function ExpenseForm({ onAddExpense, onUpdateExpense, editingExpense, onCancelEdit }: ExpenseFormProps) {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState<Date>(new Date());
 
+  const isEditing = editingExpense !== null;
+
+  // Populate form when editing
+  useEffect(() => {
+    if (editingExpense) {
+      setAmount(editingExpense.amount.toString());
+      setCategory(editingExpense.category);
+      setDescription(editingExpense.description);
+      setDate(editingExpense.date);
+    }
+  }, [editingExpense]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount || !category || !description) return;
 
-    onAddExpense({
+    const expenseData = {
       amount: parseFloat(amount),
       category,
       description,
       date
-    });
+    };
+
+    if (isEditing && editingExpense) {
+      onUpdateExpense(editingExpense.id, expenseData);
+    } else {
+      onAddExpense(expenseData);
+    }
 
     // Reset form
+    setAmount("");
+    setCategory("");
+    setDescription("");
+    setDate(new Date());
+  };
+
+  const handleCancel = () => {
+    onCancelEdit();
     setAmount("");
     setCategory("");
     setDescription("");
@@ -62,8 +91,17 @@ export function ExpenseForm({ onAddExpense }: ExpenseFormProps) {
     <Card className="shadow-card">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Plus className="h-5 w-5 text-accent" />
-          Add New Expense
+          {isEditing ? (
+            <>
+              <Edit className="h-5 w-5 text-accent" />
+              Edit Expense
+            </>
+          ) : (
+            <>
+              <Plus className="h-5 w-5 text-accent" />
+              Add New Expense
+            </>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -137,9 +175,16 @@ export function ExpenseForm({ onAddExpense }: ExpenseFormProps) {
             </Popover>
           </div>
 
-          <Button type="submit" className="w-full">
-            Add Expense
-          </Button>
+          <div className="flex gap-2">
+            <Button type="submit" className="flex-1">
+              {isEditing ? "Update Expense" : "Add Expense"}
+            </Button>
+            {isEditing && (
+              <Button type="button" variant="outline" onClick={handleCancel}>
+                Cancel
+              </Button>
+            )}
+          </div>
         </form>
       </CardContent>
     </Card>
