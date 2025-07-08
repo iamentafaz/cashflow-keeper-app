@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ExpenseForm } from "@/components/ExpenseForm";
 import { ExpenseList } from "@/components/ExpenseList";
 import { ExpenseDashboard } from "@/components/ExpenseDashboard";
+import { ExpenseChart } from "@/components/ExpenseChart";
 import { Wallet } from "lucide-react";
 
 interface Expense {
@@ -44,6 +45,11 @@ const Index = () => {
       <main className="container mx-auto px-4 py-8">
         {/* Dashboard Stats */}
         <ExpenseDashboard expenses={expenses} />
+
+        {/* Expense Chart */}
+        <div className="mb-8">
+          <ExpenseChart expenses={expenses} />
+        </div>
 
         {/* Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
