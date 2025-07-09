@@ -3,9 +3,6 @@ import { ExpenseForm } from "@/components/ExpenseForm";
 import { ExpenseList } from "@/components/ExpenseList";
 import { ExpenseDashboard } from "@/components/ExpenseDashboard";
 import { ExpenseChart } from "@/components/ExpenseChart";
-import { AuthModal } from "@/components/AuthModal";
-import { UserMenu } from "@/components/UserMenu";
-import { Wallet } from "lucide-react";
 
 interface Expense {
   id: string;
@@ -18,7 +15,6 @@ interface Expense {
 const Index = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
-  const [user, setUser] = useState<string | null>(null);
 
   const handleAddExpense = (newExpense: Omit<Expense, 'id'>) => {
     const expense: Expense = {
@@ -47,77 +43,42 @@ const Index = () => {
     setEditingExpense(null);
   };
 
-  const handleLogin = (email: string) => {
-    setUser(email);
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-  };
-
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary rounded-lg">
-                <Wallet className="h-6 w-6 text-primary-foreground" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-primary">ExpenseTracker</h1>
-                <p className="text-sm text-muted-foreground">Manage your expenses with ease</p>
-              </div>
-            </div>
-            <div>
-              {user ? (
-                <UserMenu userEmail={user} onLogout={handleLogout} />
-              ) : (
-                <AuthModal onLogin={handleLogin} />
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+    <div className="container mx-auto px-4 py-8">
+      {/* Dashboard Stats */}
+      <ExpenseDashboard expenses={expenses} />
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        {/* Dashboard Stats */}
-        <ExpenseDashboard expenses={expenses} />
+      {/* Expense Chart */}
+      <div className="mb-8">
+        <ExpenseChart expenses={expenses} />
+      </div>
 
-        {/* Expense Chart */}
-        <div className="mb-8">
-          <ExpenseChart expenses={expenses} />
+      {/* Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Expense Form */}
+        <div>
+          <ExpenseForm 
+            onAddExpense={handleAddExpense}
+            onUpdateExpense={handleUpdateExpense}
+            editingExpense={editingExpense}
+            onCancelEdit={handleCancelEdit}
+          />
         </div>
 
-        {/* Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Expense Form */}
-          <div>
-            <ExpenseForm 
-              onAddExpense={handleAddExpense}
-              onUpdateExpense={handleUpdateExpense}
-              editingExpense={editingExpense}
-              onCancelEdit={handleCancelEdit}
-            />
-          </div>
-
-          {/* Expense List */}
-          <div>
-            <ExpenseList 
-              expenses={expenses}
-              onEditExpense={handleEditExpense}
-              onDeleteExpense={handleDeleteExpense}
-            />
-          </div>
+        {/* Expense List */}
+        <div>
+          <ExpenseList 
+            expenses={expenses}
+            onEditExpense={handleEditExpense}
+            onDeleteExpense={handleDeleteExpense}
+          />
         </div>
+      </div>
 
-        {/* Footer */}
-        <footer className="mt-16 text-center text-sm text-muted-foreground">
-          <p>Track your spending and stay on budget</p>
-        </footer>
-      </main>
+      {/* Footer */}
+      <footer className="mt-16 text-center text-sm text-muted-foreground">
+        <p>Track your spending and stay on budget</p>
+      </footer>
     </div>
   );
 };
