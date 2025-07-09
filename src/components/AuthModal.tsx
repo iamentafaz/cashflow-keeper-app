@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LogIn } from "lucide-react";
+import { LogIn, UserPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface AuthModalProps {
@@ -13,6 +13,8 @@ interface AuthModalProps {
 export function AuthModal({ onLogin }: AuthModalProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [isSignUp, setIsSignUp] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
 
@@ -39,29 +41,59 @@ export function AuthModal({ onLogin }: AuthModalProps) {
       return;
     }
 
+    if (isSignUp && !name.trim()) {
+      toast({
+        title: "Name required",
+        description: "Please enter your name",
+        variant: "destructive",
+      });
+      return;
+    }
+
     onLogin(email);
     setIsOpen(false);
     setEmail("");
     setPassword("");
+    setName("");
     toast({
-      title: "Login successful",
-      description: "Welcome back!",
+      title: isSignUp ? "Account created" : "Login successful",
+      description: isSignUp ? "Welcome to ExpenseTracker!" : "Welcome back!",
     });
+  };
+
+  const toggleMode = () => {
+    setIsSignUp(!isSignUp);
+    setEmail("");
+    setPassword("");
+    setName("");
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" className="gap-2">
-          <LogIn className="h-4 w-4" />
-          Login
+          {isSignUp ? <UserPlus className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
+          {isSignUp ? "Sign Up" : "Login"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Login to your account</DialogTitle>
+          <DialogTitle>{isSignUp ? "Create your account" : "Login to your account"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {isSignUp && (
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Enter your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -85,8 +117,17 @@ export function AuthModal({ onLogin }: AuthModalProps) {
             />
           </div>
           <Button type="submit" className="w-full">
-            Login
+            {isSignUp ? "Create Account" : "Login"}
           </Button>
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={toggleMode}
+              className="text-sm text-muted-foreground hover:text-primary transition-colors"
+            >
+              {isSignUp ? "Already have an account? Login" : "Don't have an account? Sign up"}
+            </button>
+          </div>
         </form>
       </DialogContent>
     </Dialog>
