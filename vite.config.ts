@@ -15,6 +15,7 @@ export default defineConfig(({ mode }) => ({
     federation({
       name: 'shell',
       remotes: {
+        watch_app: 'http://localhost:4173/assets/remoteEntry.js',
         // Remote apps will be configured here when needed
         // Example: 'remoteApp': 'http://localhost:4001/assets/remoteEntry.js'
       },

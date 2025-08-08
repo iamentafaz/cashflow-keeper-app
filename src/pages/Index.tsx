@@ -3,6 +3,7 @@ import { ExpenseForm } from "@/components/ExpenseForm";
 import { ExpenseList } from "@/components/ExpenseList";
 import { ExpenseDashboard } from "@/components/ExpenseDashboard";
 import { ExpenseChart } from "@/components/ExpenseChart";
+import WatchCard from "watch_app/WatchCard";
 
 interface Expense {
   id: string;
@@ -63,6 +64,10 @@ const Index = () => {
             editingExpense={editingExpense}
             onCancelEdit={handleCancelEdit}
           />
+        </div>
+
+        <div>
+          <WatchCard />
         </div>
 
         {/* Expense List */}
