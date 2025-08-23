@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ShellLayout } from "@/components/ShellLayout";
-import Index from "./pages/Index";
+import Index, { supabase } from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,6 +20,18 @@ const App = () => {
   const handleLogout = () => {
     setUser(null);
   };
+
+  useEffect(() => {
+    async function checkIfUserLoggedIn() {
+      const { data, error } = await supabase.auth.getSession()
+      console.log('user', data, error)
+      if (data && !error) {
+        setUser(data.session.user.email)
+        localStorage.setItem('user', JSON.stringify(data.session.user))
+      }
+    }
+    checkIfUserLoggedIn()
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

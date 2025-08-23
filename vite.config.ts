@@ -9,13 +9,21 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    // proxy: {
+    //   '/watchApp/assets': {
+    //     target: 'https://spcomp.entafaz.in',
+    //     changeOrigin: true,
+    //     secure: false,
+    //   },
+    // },
+    // cors: false, // enable CORS on dev server,
   },
   plugins: [
     react(),
     federation({
       name: 'shell',
       remotes: {
-        watch_app: 'http://localhost:4173/assets/remoteEntry.js',
+        watch_app: 'https://spcomp.entafaz.in/assets/remoteEntry.js',
         // Remote apps will be configured here when needed
         // Example: 'remoteApp': 'http://localhost:4001/assets/remoteEntry.js'
       },

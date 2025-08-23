@@ -10,6 +10,7 @@ interface Expense {
   category: string;
   description: string;
   date: Date;
+  created_at: Date;
 }
 
 interface ExpenseListProps {
@@ -76,7 +77,7 @@ export function ExpenseList({ expenses, onEditExpense, onDeleteExpense }: Expens
             <div className="flex items-center gap-2">
               <div className="text-right mr-2">
                 <p className="text-lg font-semibold text-primary">
-                  ${expense.amount.toFixed(2)}
+                  Rs. {expense.amount.toFixed(2)}
                 </p>
               </div>
               <Button

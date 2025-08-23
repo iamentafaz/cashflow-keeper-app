@@ -67,11 +67,11 @@ export function ExpenseChart({ expenses }: ExpenseChartProps) {
               />
               <YAxis 
                 tick={{ fontSize: 12 }}
-                tickFormatter={(value) => `$${value}`}
+                tickFormatter={(value) => `Rs. ${value}`}
               />
               <ChartTooltip 
                 content={<ChartTooltipContent />}
-                formatter={(value) => [`$${value}`, "Amount"]}
+                formatter={(value) => [`Rs. ${value}`, "Amount"]}
               />
               <Bar 
                 dataKey="amount" 

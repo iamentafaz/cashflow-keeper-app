@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, TrendingDown, Calendar, Target } from "lucide-react";
 import { format, startOfMonth, endOfMonth } from "date-fns";
 
+
 interface Expense {
   id: string;
   amount: number;
@@ -36,6 +37,9 @@ export function ExpenseDashboard({ expenses }: ExpenseDashboardProps) {
   const topCategory = Object.entries(categoryTotals)
     .sort(([,a], [,b]) => b - a)[0];
 
+  
+
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
       <Card className="shadow-card bg-gradient-card">
@@ -45,7 +49,7 @@ export function ExpenseDashboard({ expenses }: ExpenseDashboardProps) {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-primary">
-            ${totalExpenses.toFixed(2)}
+            Rs. {totalExpenses.toFixed(2)}
           </div>
           <p className="text-xs text-muted-foreground">
             All time spending
@@ -60,7 +64,7 @@ export function ExpenseDashboard({ expenses }: ExpenseDashboardProps) {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-primary">
-            ${thisMonthExpenses.toFixed(2)}
+            Rs. {thisMonthExpenses.toFixed(2)}
           </div>
           <p className="text-xs text-muted-foreground">
             {format(today, "MMMM yyyy")}
@@ -78,7 +82,7 @@ export function ExpenseDashboard({ expenses }: ExpenseDashboardProps) {
             {topCategory ? topCategory[0] : 'None'}
           </div>
           <p className="text-xs text-muted-foreground">
-            {topCategory ? `$${topCategory[1].toFixed(2)}` : 'No expenses yet'}
+            {topCategory ? `Rs. ${topCategory[1].toFixed(2)}` : 'No expenses yet'}
           </p>
         </CardContent>
       </Card>

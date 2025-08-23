@@ -1,0 +1,53 @@
+{
+    "access_token": "eyJhbGciOiJIUzI1NiIsImtpZCI6IkFia3FiMHFPZ2pRUWdJRUYiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2dxa2hyYW5reGl2b3Nocmtrc3J6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJlMjNjOTI4Yy1jNjE3LTQzM2UtOTFkNy1mMzQ0MWQ2Mjg1MjAiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzU1ODY5OTE2LCJpYXQiOjE3NTU4NjYzMTYsImVtYWlsIjoiYWxpLm1pcmVudGFmYXpAZ21haWwuY29tIiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJlbWFpbCIsInByb3ZpZGVycyI6WyJlbWFpbCJdfSwidXNlcl9tZXRhZGF0YSI6eyJlbWFpbCI6ImFsaS5taXJlbnRhZmF6QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYW1lIjoiTWlyIGVudGFmYXogQWxpIiwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJlMjNjOTI4Yy1jNjE3LTQzM2UtOTFkNy1mMzQ0MWQ2Mjg1MjAifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc1NTg2NjMxNn1dLCJzZXNzaW9uX2lkIjoiMTg4MTZkNWEtZmFlNS00OGRjLWE5NTMtZTk3NTBiMDgxZTA1IiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.a9RCAqZK4kg1lE6UUXzYLkL2d5ZN3vh-koYozDTh4Yc",
+    "token_type": "bearer",
+    "expires_in": 3600,
+    "expires_at": 1755869916,
+    "refresh_token": "hcrey3pb6rpz",
+    "user": {
+        "id": "e23c928c-c617-433e-91d7-f3441d628520",
+        "aud": "authenticated",
+        "role": "authenticated",
+        "email": "ali.mirentafaz@gmail.com",
+        "email_confirmed_at": "2025-08-22T12:37:49.931738Z",
+        "phone": "",
+        "confirmation_sent_at": "2025-08-22T12:37:01.050895Z",
+        "confirmed_at": "2025-08-22T12:37:49.931738Z",
+        "last_sign_in_at": "2025-08-22T12:38:36.105714744Z",
+        "app_metadata": {
+            "provider": "email",
+            "providers": [
+                "email"
+            ]
+        },
+        "user_metadata": {
+            "email": "ali.mirentafaz@gmail.com",
+            "email_verified": true,
+            "name": "Mir entafaz Ali",
+            "phone_verified": false,
+            "sub": "e23c928c-c617-433e-91d7-f3441d628520"
+        },
+        "identities": [
+            {
+                "identity_id": "12bfc5be-de83-4384-92a6-c2ff2990fac0",
+                "id": "e23c928c-c617-433e-91d7-f3441d628520",
+                "user_id": "e23c928c-c617-433e-91d7-f3441d628520",
+                "identity_data": {
+                    "email": "ali.mirentafaz@gmail.com",
+                    "email_verified": true,
+                    "name": "Mir entafaz Ali",
+                    "phone_verified": false,
+                    "sub": "e23c928c-c617-433e-91d7-f3441d628520"
+                },
+                "provider": "email",
+                "last_sign_in_at": "2025-08-22T12:37:01.045016Z",
+                "created_at": "2025-08-22T12:37:01.045078Z",
+                "updated_at": "2025-08-22T12:37:01.045078Z",
+                "email": "ali.mirentafaz@gmail.com"
+            }
+        ],
+        "created_at": "2025-08-22T12:37:01.018335Z",
+        "updated_at": "2025-08-22T12:38:36.108376Z",
+        "is_anonymous": false
+    }
+}

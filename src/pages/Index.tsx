@@ -4,29 +4,44 @@ import { ExpenseList } from "@/components/ExpenseList";
 import { ExpenseDashboard } from "@/components/ExpenseDashboard";
 import { ExpenseChart } from "@/components/ExpenseChart";
 import WatchCard from "watch_app/WatchCard";
+import { createClient } from "@supabase/supabase-js";
+import { useEffect } from "react";
+import getLoggedInUser from "@/utils/user";
+export const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY);
 
 interface Expense {
-  id: string;
+  id?: string;
   amount: number;
   category: string;
   description: string;
   date: Date;
+  user_id?: string;
 }
 
 const Index = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const user = getLoggedInUser()
+  console.log('user', user)
 
-  const handleAddExpense = (newExpense: Omit<Expense, 'id'>) => {
+  const handleAddExpense = async (newExpense: Omit<Expense, 'id'>) => {
     const expense: Expense = {
       ...newExpense,
-      id: Date.now().toString()
+      user_id: user.id
+      // id: Date.now().toString()
     };
+
+    const { data, error } = await supabase
+      .from('expenses')
+      .insert(expense)
+      .select()
+
+    console.log('Expenses', expense, data, error)
     setExpenses(prev => [expense, ...prev]);
   };
 
   const handleUpdateExpense = (id: string, updatedExpense: Omit<Expense, 'id'>) => {
-    setExpenses(prev => prev.map(expense => 
+    setExpenses(prev => prev.map(expense =>
       expense.id === id ? { ...updatedExpense, id } : expense
     ));
     setEditingExpense(null);
@@ -43,6 +58,16 @@ const Index = () => {
   const handleCancelEdit = () => {
     setEditingExpense(null);
   };
+  async function getInstruments() {
+    console.log(user.id)
+    const { data } = await supabase.from("expenses").select().eq('user_id', user.id);
+    console.log(data);
+    setExpenses(data);
+  }
+
+  useEffect(() => {
+    getInstruments();
+  }, []);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -58,7 +83,7 @@ const Index = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Expense Form */}
         <div>
-          <ExpenseForm 
+          <ExpenseForm
             onAddExpense={handleAddExpense}
             onUpdateExpense={handleUpdateExpense}
             editingExpense={editingExpense}
@@ -72,7 +97,7 @@ const Index = () => {
 
         {/* Expense List */}
         <div>
-          <ExpenseList 
+          <ExpenseList
             expenses={expenses}
             onEditExpense={handleEditExpense}
             onDeleteExpense={handleDeleteExpense}

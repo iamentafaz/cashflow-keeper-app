@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LogIn, UserPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
+import { supabase } from "@/pages/Index";
 
 interface AuthModalProps {
   onLogin: (email: string) => void;
@@ -17,8 +19,74 @@ export function AuthModal({ onLogin }: AuthModalProps) {
   const [isSignUp, setIsSignUp] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
+  const [isFormValid, setIsFormValid] = useState(false);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  useEffect(() => {
+    console.log('Invalid hook')
+    if (isFormValid) {  
+      if(isSignUp) {        
+        supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              name: name,
+            },
+            emailRedirectTo: 'http://localhost:8080',
+          },
+        }).then(response => {
+          console.log('data from signup', response)
+          if(response.error) {
+            console.log(response.error.message)
+            toast({
+              title: 'Signup failed',
+              description: response.error.message,
+            });
+            setIsFormValid(false)
+            return
+          }
+          onLogin(email);
+          setIsOpen(false);
+          setEmail("");
+          setPassword("");
+          setName("");
+          setIsFormValid(false)
+          toast({
+            title: isSignUp ? "Account created" : "Login successful",
+            description: isSignUp ? "Welcome to ExpenseTracker!" : "Welcome back!",
+          });
+        })
+      } else {
+        console.log('login method')
+        supabase.auth.signInWithPassword({
+          email,
+          password,
+        }).then(response => {
+          console.log('data from signup', response)
+          if(response.error) {
+            console.log(response.error.message)
+            toast({
+              title: 'Login failed',
+              description: response.error.message,
+            });
+          setIsFormValid(false)
+            return
+          }
+          onLogin(email);
+          setEmail("");
+          setPassword("");
+          setIsOpen(false);
+          setIsFormValid(false)
+          toast({
+            title: isSignUp ? "Account created" : "Login successful",
+            description: isSignUp ? "Welcome to ExpenseTracker!" : "Welcome back!",
+          });
+        })
+      }
+    }
+  }, [isFormValid]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,16 +117,8 @@ export function AuthModal({ onLogin }: AuthModalProps) {
       });
       return;
     }
-
-    onLogin(email);
-    setIsOpen(false);
-    setEmail("");
-    setPassword("");
-    setName("");
-    toast({
-      title: isSignUp ? "Account created" : "Login successful",
-      description: isSignUp ? "Welcome to ExpenseTracker!" : "Welcome back!",
-    });
+    console.log('Form triggered')
+    setIsFormValid(true);
   };
 
   const toggleMode = () => {
