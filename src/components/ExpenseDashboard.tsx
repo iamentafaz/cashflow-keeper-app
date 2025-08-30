@@ -4,7 +4,7 @@ import { format, startOfMonth, endOfMonth } from "date-fns";
 
 
 interface Expense {
-  id: string;
+  id?: string;
   amount: number;
   category: string;
   description: string;

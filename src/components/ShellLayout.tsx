@@ -2,14 +2,17 @@ import { Outlet } from "react-router-dom";
 import { AuthModal } from "@/components/AuthModal";
 import { UserMenu } from "@/components/UserMenu";
 import { Wallet } from "lucide-react";
+import { RootState } from "@/store/store";
+import { useSelector } from "react-redux";
 
 interface ShellLayoutProps {
-  user: string | null;
   onLogin: (email: string) => void;
   onLogout: () => void;
 }
 
-export function ShellLayout({ user, onLogin, onLogout }: ShellLayoutProps) {
+export function ShellLayout({ onLogin, onLogout }: ShellLayoutProps) {
+  const user = useSelector((state: RootState) => state.user.user)
+  console.log('shell', user)
   return (
     <div className="min-h-screen bg-background">
       {/* Global Header */}
@@ -26,8 +29,8 @@ export function ShellLayout({ user, onLogin, onLogout }: ShellLayoutProps) {
               </div>
             </div>
             <div>
-              {user ? (
-                <UserMenu userEmail={user} onLogout={onLogout} />
+              {user.email ? (
+                <UserMenu userEmail={user?.email} onLogout={onLogout} />
               ) : (
                 <AuthModal onLogin={onLogin} />
               )}

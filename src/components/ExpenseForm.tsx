@@ -11,7 +11,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
 interface Expense {
-  id: string;
+  id?: string;
   amount: number;
   category: string;
   description: string;

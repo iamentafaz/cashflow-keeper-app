@@ -3,11 +3,12 @@ import { ExpenseForm } from "@/components/ExpenseForm";
 import { ExpenseList } from "@/components/ExpenseList";
 import { ExpenseDashboard } from "@/components/ExpenseDashboard";
 import { ExpenseChart } from "@/components/ExpenseChart";
-import WatchCard from "watch_app/WatchCard";
-import { createClient } from "@supabase/supabase-js";
+// import WatchCard from "watch_app/WatchCard";
 import { useEffect } from "react";
-import getLoggedInUser from "@/utils/user";
-export const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY);
+import supabase from '../db/index'
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
+
 
 interface Expense {
   id?: string;
@@ -15,20 +16,19 @@ interface Expense {
   category: string;
   description: string;
   date: Date;
-  user_id?: string;
+  user_id: string;
+  created_at?: string
 }
 
 const Index = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
-  const user = getLoggedInUser()
-  console.log('user', user)
+  const user = useSelector((state:RootState) => state.user.user)
 
   const handleAddExpense = async (newExpense: Omit<Expense, 'id'>) => {
-    const expense: Expense = {
+    const expense: Omit<Expense, 'id'> = {
       ...newExpense,
       user_id: user.id
-      // id: Date.now().toString()
     };
 
     const { data, error } = await supabase
@@ -36,7 +36,7 @@ const Index = () => {
       .insert(expense)
       .select()
 
-    console.log('Expenses', expense, data, error)
+    // console.log('Expenses', expense, data, error)
     setExpenses(prev => [expense, ...prev]);
   };
 
@@ -58,16 +58,18 @@ const Index = () => {
   const handleCancelEdit = () => {
     setEditingExpense(null);
   };
-  async function getInstruments() {
-    console.log(user.id)
+  async function getExpenses() {
+    // console.log(user.id)
     const { data } = await supabase.from("expenses").select().eq('user_id', user.id);
-    console.log(data);
+    // console.log(data);
     setExpenses(data);
   }
 
   useEffect(() => {
-    getInstruments();
-  }, []);
+    if(user.id) {
+      getExpenses();
+    }
+  }, [user]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -75,10 +77,7 @@ const Index = () => {
       <ExpenseDashboard expenses={expenses} />
 
       {/* Expense Chart */}
-      <div className="mb-8">
-        <ExpenseChart expenses={expenses} />
-      </div>
-
+    
       {/* Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Expense Form */}
@@ -91,9 +90,9 @@ const Index = () => {
           />
         </div>
 
-        <div>
+        {/* <div>
           <WatchCard />
-        </div>
+        </div> */}
 
         {/* Expense List */}
         <div>
@@ -103,6 +102,9 @@ const Index = () => {
             onDeleteExpense={handleDeleteExpense}
           />
         </div>
+      </div>
+      <div className="mt-8">
+        <ExpenseChart expenses={expenses} />
       </div>
 
       {/* Footer */}

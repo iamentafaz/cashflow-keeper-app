@@ -4,7 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval } from "date-fns";
 
 interface Expense {
-  id: string;
+  id?: string;
   amount: number;
   category: string;
   description: string;

@@ -6,7 +6,9 @@ import { Label } from "@/components/ui/label";
 import { LogIn, UserPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
-import { supabase } from "@/pages/Index";
+import supabase from "@/db/index";
+import { useAppDispatch } from "@/store/types";
+import { userSignIn } from "@/store/slices/userSlice";
 
 interface AuthModalProps {
   onLogin: (email: string) => void;
@@ -20,11 +22,12 @@ export function AuthModal({ onLogin }: AuthModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
   const [isFormValid, setIsFormValid] = useState(false);
-
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const dispatch = useAppDispatch()
+
+
 
   useEffect(() => {
-    console.log('Invalid hook')
     if (isFormValid) {  
       if(isSignUp) {        
         supabase.auth.signUp({
@@ -37,9 +40,7 @@ export function AuthModal({ onLogin }: AuthModalProps) {
             emailRedirectTo: 'http://localhost:8080',
           },
         }).then(response => {
-          console.log('data from signup', response)
           if(response.error) {
-            console.log(response.error.message)
             toast({
               title: 'Signup failed',
               description: response.error.message,
@@ -59,19 +60,14 @@ export function AuthModal({ onLogin }: AuthModalProps) {
           });
         })
       } else {
-        console.log('login method')
-        supabase.auth.signInWithPassword({
-          email,
-          password,
-        }).then(response => {
-          console.log('data from signup', response)
-          if(response.error) {
-            console.log(response.error.message)
+        dispatch(userSignIn({email, password})).then((response: { payload: Object}) => {
+          console.log('response', response)
+          if(response.payload.error) {
             toast({
               title: 'Login failed',
-              description: response.error.message,
+              description: response.payload.error,
             });
-          setIsFormValid(false)
+            setIsFormValid(false)
             return
           }
           onLogin(email);
@@ -151,6 +147,7 @@ export function AuthModal({ onLogin }: AuthModalProps) {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
+                autoComplete="off"
               />
             </div>
           )}
@@ -163,6 +160,7 @@ export function AuthModal({ onLogin }: AuthModalProps) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              autoComplete="off"
             />
           </div>
           <div className="space-y-2">
@@ -174,6 +172,7 @@ export function AuthModal({ onLogin }: AuthModalProps) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              autoComplete="off"
             />
           </div>
           <Button type="submit" className="w-full">

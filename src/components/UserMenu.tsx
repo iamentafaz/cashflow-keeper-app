@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { LogOut, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { RootState } from "@/store/store";
+import { useSelector } from "react-redux";
 
 interface UserMenuProps {
   userEmail: string;
@@ -11,7 +13,6 @@ interface UserMenuProps {
 
 export function UserMenu({ userEmail, onLogout }: UserMenuProps) {
   const { toast } = useToast();
-
   const handleLogout = () => {
     onLogout();
     toast({
@@ -20,9 +21,10 @@ export function UserMenu({ userEmail, onLogout }: UserMenuProps) {
     });
   };
 
+
   const getInitials = (email: string) => {
-    const name = email.split('@')[0];
-    return name.charAt(0).toUpperCase();
+    const name = email?.split('@')[0];
+    return name?.charAt(0).toUpperCase();
   };
 
   return (

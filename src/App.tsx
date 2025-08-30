@@ -1,36 +1,32 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ShellLayout } from "@/components/ShellLayout";
-import Index, { supabase } from "./pages/Index";
+import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import { getLoggedInUser, userLogOut } from "./store/slices/userSlice";
+import { useAppDispatch } from "./store/types";
 
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [user, setUser] = useState<string | null>(null);
+  const dispatch = useAppDispatch()
+
 
   const handleLogin = (email: string) => {
-    setUser(email);
+    // setUser(email);
   };
 
   const handleLogout = () => {
-    setUser(null);
+    // setUser(null);
+    dispatch(userLogOut())
   };
 
   useEffect(() => {
-    async function checkIfUserLoggedIn() {
-      const { data, error } = await supabase.auth.getSession()
-      console.log('user', data, error)
-      if (data && !error) {
-        setUser(data.session.user.email)
-        localStorage.setItem('user', JSON.stringify(data.session.user))
-      }
-    }
-    checkIfUserLoggedIn()
+    dispatch(getLoggedInUser())
   }, []);
 
   return (
@@ -44,7 +40,6 @@ const App = () => {
               path="/" 
               element={
                 <ShellLayout 
-                  user={user} 
                   onLogin={handleLogin} 
                   onLogout={handleLogout} 
                 />

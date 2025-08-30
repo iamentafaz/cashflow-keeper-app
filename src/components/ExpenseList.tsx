@@ -5,12 +5,12 @@ import { Calendar, Receipt, Edit, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 
 interface Expense {
-  id: string;
+  id?: string;
   amount: number;
   category: string;
   description: string;
   date: Date;
-  created_at: Date;
+  created_at?: Date;
 }
 
 interface ExpenseListProps {
