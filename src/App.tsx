@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { getLoggedInUser, userLogOut } from "./store/slices/userSlice";
 import { useAppDispatch } from "./store/types";
+import Landing from "./pages/Landing";
 
 const queryClient = new QueryClient();
 
@@ -21,7 +22,6 @@ const App = () => {
   };
 
   const handleLogout = () => {
-    // setUser(null);
     dispatch(userLogOut())
   };
 
@@ -41,11 +41,12 @@ const App = () => {
               element={
                 <ShellLayout 
                   onLogin={handleLogin} 
-                  onLogout={handleLogout} 
+                  onLogout={handleLogout}
                 />
               }
             >
-              <Route index element={<Index />} />
+              <Route index element={<Landing />} />
+              <Route path="/manage-expenses" element={<Index />}/>
               {/* Remote app routes will be added here */}
               {/* Example: <Route path="/remote-app/*" element={<RemoteAppLoader appName="remoteApp" moduleName="./App" />} /> */}
             </Route>

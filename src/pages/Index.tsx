@@ -9,7 +9,6 @@ import supabase from '../db/index'
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 
-
 interface Expense {
   id?: string;
   amount: number;

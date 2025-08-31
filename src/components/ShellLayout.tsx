@@ -4,6 +4,7 @@ import { UserMenu } from "@/components/UserMenu";
 import { Wallet } from "lucide-react";
 import { RootState } from "@/store/store";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 interface ShellLayoutProps {
   onLogin: (email: string) => void;
@@ -12,7 +13,10 @@ interface ShellLayoutProps {
 
 export function ShellLayout({ onLogin, onLogout }: ShellLayoutProps) {
   const user = useSelector((state: RootState) => state.user.user)
-  console.log('shell', user)
+  const navigate = useNavigate()
+  const navigateToHome = () => {
+    navigate('/')
+  }
   return (
     <div className="min-h-screen bg-background">
       {/* Global Header */}
@@ -20,12 +24,12 @@ export function ShellLayout({ onLogin, onLogout }: ShellLayoutProps) {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary rounded-lg">
+              <div className="p-2 bg-primary rounded-lg cursor-pointer" onClick={navigateToHome}>
                 <Wallet className="h-6 w-6 text-primary-foreground" />
               </div>
-              <div>
-                <h1 className="text-2xl font-bold text-primary">Shell App</h1>
-                <p className="text-sm text-muted-foreground">Module Federation Host</p>
+              <div className="cursor-pointer">
+                <h1 className="text-2xl font-bold text-primary" onClick={navigateToHome}>KipCash</h1>
+                <p className="text-sm text-muted-foreground">Ease your expense management</p>
               </div>
             </div>
             <div>

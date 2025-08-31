@@ -42,7 +42,7 @@ export function ExpenseDashboard({ expenses }: ExpenseDashboardProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-      <Card className="shadow-card bg-gradient-card">
+      <Card className="shadow-card bg-card">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
           <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -57,7 +57,7 @@ export function ExpenseDashboard({ expenses }: ExpenseDashboardProps) {
         </CardContent>
       </Card>
 
-      <Card className="shadow-card bg-gradient-card">
+      <Card className="shadow-card bg-card">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">This Month</CardTitle>
           <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -72,7 +72,7 @@ export function ExpenseDashboard({ expenses }: ExpenseDashboardProps) {
         </CardContent>
       </Card>
 
-      <Card className="shadow-card bg-gradient-card">
+      <Card className="shadow-card bg-card">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Top Category</CardTitle>
           <Target className="h-4 w-4 text-muted-foreground" />
@@ -87,7 +87,7 @@ export function ExpenseDashboard({ expenses }: ExpenseDashboardProps) {
         </CardContent>
       </Card>
 
-      <Card className="shadow-card bg-gradient-card">
+      <Card className="shadow-card bg-card">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Transactions</CardTitle>
           <TrendingDown className="h-4 w-4 text-muted-foreground" />
