@@ -39,10 +39,15 @@ const Index = () => {
     setExpenses(prev => [expense, ...prev]);
   };
 
-  const handleUpdateExpense = (id: string, updatedExpense: Omit<Expense, 'id'>) => {
+  const handleUpdateExpense = async (id: string, updatedExpense: Omit<Expense, 'id'>) => {
     setExpenses(prev => prev.map(expense =>
       expense.id === id ? { ...updatedExpense, id } : expense
     ));
+    const { data, error } = await supabase
+    .from('expenses')
+    .update({...updatedExpense})
+    .eq('id', id)
+    // .select()
     setEditingExpense(null);
   };
 

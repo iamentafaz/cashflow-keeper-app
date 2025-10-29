@@ -1,8 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Receipt, Edit, Trash2 } from "lucide-react";
 import { format } from "date-fns";
+import { Link } from "react-router-dom";
 
 interface Expense {
   id?: string;
@@ -100,6 +101,9 @@ export function ExpenseList({ expenses, onEditExpense, onDeleteExpense }: Expens
           </div>
         ))}
       </CardContent>
+      <CardFooter className="justify-end">
+        <Link to="/expenses" className="underline">View all expense</Link>
+      </CardFooter>
     </Card>
   );
 }

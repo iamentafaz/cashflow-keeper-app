@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import { getLoggedInUser, userLogOut } from "./store/slices/userSlice";
 import { useAppDispatch } from "./store/types";
 import Landing from "./pages/Landing";
+import ExpensesView from "./pages/ExpensesView";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ const App = () => {
             >
               <Route index element={<Landing />} />
               <Route path="/manage-expenses" element={<Index />}/>
+              <Route path="/expenses" element={<ExpensesView />}/>
               {/* Remote app routes will be added here */}
               {/* Example: <Route path="/remote-app/*" element={<RemoteAppLoader appName="remoteApp" moduleName="./App" />} /> */}
             </Route>

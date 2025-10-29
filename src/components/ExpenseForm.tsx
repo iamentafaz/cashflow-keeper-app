@@ -65,6 +65,7 @@ export function ExpenseForm({ onAddExpense, onUpdateExpense, editingExpense, onC
       description,
       date
     };
+    console.log('expenseData', expenseData, isEditing)
 
     if (isEditing && editingExpense) {
       onUpdateExpense(editingExpense.id, expenseData);

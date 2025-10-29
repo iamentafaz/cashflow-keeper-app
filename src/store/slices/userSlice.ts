@@ -29,7 +29,9 @@ export const userSignIn  =  createAsyncThunk('users/signIn', async (user: {email
 export const userSlice = createSlice({
     name: 'users',
     initialState: { 
-        user: {}, 
+        user: {
+            id: null,
+        }, 
         session: {}
     },
     reducers: {},
@@ -42,7 +44,7 @@ export const userSlice = createSlice({
             }
         })
         builder.addCase(userLogOut.fulfilled, (state, action)=> {
-            state.user = {}
+            state.user = { id: null }
             state.session = {}
         })
         builder.addCase(userSignIn.fulfilled, (state, action: any) => {

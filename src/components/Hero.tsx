@@ -60,7 +60,7 @@ const Hero = () => {
 
           {/* Hero Image */}
           <div className="relative">
-            <Card className="p-4 shadow-[var(--shadow-elegant)] border-0 bg-gradient-to-br from-white to-gray-50">
+            <Card className="p-4 shadow-[var(--shadow-elegant)] border-0 bg-[var(--gradient-card)]">
               <img 
                 src={heroImage} 
                 alt="Expense Management Dashboard" 
@@ -69,7 +69,7 @@ const Hero = () => {
             </Card>
             
             {/* Floating cards */}
-            <Card className="absolute -top-4 -left-4 p-4 bg-white shadow-[var(--shadow-card)] border-0">
+            <Card className="absolute -top-4 -left-4 p-4 bg-card shadow-[var(--shadow-card)] border-0">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-success/10 rounded-full flex items-center justify-center">
                   <PieChart className="w-5 h-5 text-success" />
@@ -81,7 +81,7 @@ const Hero = () => {
               </div>
             </Card>
 
-            <Card className="absolute -bottom-4 -right-4 p-4 bg-white shadow-[var(--shadow-card)] border-0">
+            <Card className="absolute -bottom-4 -right-4 p-4 bg-card shadow-[var(--shadow-card)] border-0">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-accent/10 rounded-full flex items-center justify-center">
                   <Shield className="w-5 h-5 text-accent" />
