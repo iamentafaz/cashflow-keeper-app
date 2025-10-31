@@ -5,7 +5,7 @@ import { ExpenseDashboard } from "@/components/ExpenseDashboard";
 import { ExpenseChart } from "@/components/ExpenseChart";
 // import WatchCard from "watch_app/WatchCard";
 import { useEffect } from "react";
-import supabase from '../db/index'
+import {createClient} from '../utils/supabase/client'
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 
@@ -30,6 +30,8 @@ const Index = () => {
       user_id: user.id
     };
 
+    const supabase = await createClient()
+
     const { data, error } = await supabase
       .from('expenses')
       .insert(expense)
@@ -43,6 +45,8 @@ const Index = () => {
     setExpenses(prev => prev.map(expense =>
       expense.id === id ? { ...updatedExpense, id } : expense
     ));
+    const supabase = await createClient()
+
     const { data, error } = await supabase
     .from('expenses')
     .update({...updatedExpense})
@@ -63,6 +67,8 @@ const Index = () => {
     setEditingExpense(null);
   };
   async function getExpenses() {
+    const supabase = await createClient()
+
     // console.log(user.id)
     const { data } = await supabase.from("expenses").select().eq('user_id', user.id);
     // console.log(data);
