@@ -1,3 +1,7 @@
+import { store } from '@/store/store'
+import './globals.css'
+import { Providers } from './providers'
+
 export default function RootLayout({
   children,
 }: {
@@ -21,7 +25,7 @@ export default function RootLayout({
   </head>
 
   <body>
-    <div id="root">{children}</div>
+    <Providers>{children}</Providers>
   </body>
 </html>
   )

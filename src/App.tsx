@@ -50,7 +50,6 @@ const App = () => {
             >
               <Route index element={<Landing />} />
               <Route path="/manage-expenses" element={<Index />}/>
-              <Route path="/expenses" element={<ExpensesView />}/>
               {/* Remote app routes will be added here */}
               {/* Example: <Route path="/remote-app/*" element={<RemoteAppLoader appName="remoteApp" moduleName="./App" />} /> */}
             </Route>

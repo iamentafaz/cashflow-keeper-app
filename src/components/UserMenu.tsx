@@ -1,11 +1,11 @@
+"use client"
+
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { LogOut, User, Wallet2Icon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { RootState } from "@/store/store";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 
 interface UserMenuProps {
   userEmail: string;
@@ -14,13 +14,18 @@ interface UserMenuProps {
 
 export function UserMenu({ userEmail, onLogout }: UserMenuProps) {
   const { toast } = useToast();
-  const navigate = useNavigate()
+  const router = useRouter();
+  
   const handleLogout = () => {
     onLogout();
     toast({
       title: "Logged out",
       description: "You have been successfully logged out",
     });
+  };
+
+  const handleNavigateToExpenses = () => {
+    router.push("/manage-expenses");
   };
 
 
@@ -45,7 +50,7 @@ export function UserMenu({ userEmail, onLogout }: UserMenuProps) {
           <User className="h-4 w-4" />
           <span className="text-sm">{userEmail}</span>
         </DropdownMenuItem>
-       <DropdownMenuItem className="flex items-center gap-2 cursor-pointer" onClick={()=> navigate('/manage-expenses')}>
+        <DropdownMenuItem onClick={handleNavigateToExpenses} className="flex items-center gap-2 cursor-pointer">
           <Wallet2Icon className="h-4 w-4" />
           <span className="text-sm">Expenses</span>
         </DropdownMenuItem>

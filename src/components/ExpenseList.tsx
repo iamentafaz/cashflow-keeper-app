@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Receipt, Edit, Trash2 } from "lucide-react";
 import { format } from "date-fns";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 interface Expense {
   id?: string;
@@ -102,7 +102,7 @@ export function ExpenseList({ expenses, onEditExpense, onDeleteExpense }: Expens
         ))}
       </CardContent>
       <CardFooter className="justify-end">
-        <Link to="/expenses" className="underline">View all expense</Link>
+        <Link href="/expenses" className="underline cursor-pointer">View all expense</Link>
       </CardFooter>
     </Card>
   );
