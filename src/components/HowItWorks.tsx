@@ -31,10 +31,11 @@ const HowItWorks = () => {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-b from-background to-primary/5">
+    <section className="bg-gradient-to-b from-background to-primary/5 py-24">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-4">
+        <div className="mb-16 animate-fade-in-up text-center">
+          <p className="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-accent">A calmer money routine</p>
+          <h2 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl">
             How It Works
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -44,10 +45,10 @@ const HowItWorks = () => {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
           {steps.map((step, index) => (
-            <div key={index} className="relative">
-              <Card className="p-6 text-center hover:shadow-[var(--shadow-elegant)] transition-all duration-300 border-0 bg-white h-full">
-                <div className="text-6xl font-bold text-primary/10 mb-4">{step.step}</div>
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
+            <div key={index} className={`relative animate-fade-in-up [animation-delay:${index * 90}ms]`}>
+              <Card className="group h-full border-border/70 bg-card/80 p-6 text-center shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-elegant">
+                <div className="mb-4 text-6xl font-bold tracking-tight text-primary/10 transition-colors group-hover:text-primary/20">{step.step}</div>
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-accent/10 text-accent transition-transform duration-300 group-hover:rotate-[-6deg] group-hover:scale-110">
                   {step.icon}
                 </div>
                 <h3 className="text-xl font-semibold mb-3">{step.title}</h3>
@@ -64,7 +65,7 @@ const HowItWorks = () => {
         </div>
 
         <div className="text-center">
-          <Card className="p-8 bg-gradient-to-r from-primary/5 to-accent/5 border-0 max-w-2xl mx-auto">
+          <Card className="mx-auto max-w-2xl border-primary/10 bg-gradient-to-r from-primary/10 to-accent/10 p-8 shadow-card">
             <h3 className="text-2xl font-bold mb-4">Ready to Take Control?</h3>
             <p className="text-muted-foreground mb-6">
               Join thousands of users who have already transformed their financial habits with our platform.

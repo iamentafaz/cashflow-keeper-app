@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { LogIn, UserPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
-import supabase from "@/db/index";
+import {createClient} from "../utils/supabase/client";
 import { useAppDispatch } from "@/store/types";
 import { userSignIn } from "@/store/slices/userSlice";
 
@@ -28,44 +28,52 @@ export function AuthModal({ onLogin }: AuthModalProps) {
 
 
   useEffect(() => {
-    if (isFormValid) {  
-      if(isSignUp) {        
-        supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              name: name,
-            },
-            emailRedirectTo: 'http://localhost:8080',
+    async function random() {
+      const supabase = await createClient()
+      supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name: name,
           },
-        }).then(response => {
-          if(response.error) {
-            toast({
-              title: 'Signup failed',
-              description: response.error.message,
-            });
-            setIsFormValid(false)
-            return
-          }
-          onLogin(email);
-          setIsOpen(false);
-          setEmail("");
-          setPassword("");
-          setName("");
-          setIsFormValid(false)
+          emailRedirectTo: 'http://localhost:8080',
+        },
+      }).then(response => {
+        if(response.error) {
           toast({
-            title: isSignUp ? "Account created" : "Login successful",
-            description: isSignUp ? "Welcome to ExpenseTracker!" : "Welcome back!",
+            title: 'Signup failed',
+            description: response.error.message,
+            variant: "danger",
           });
-        })
+          setIsFormValid(false)
+          return
+        }
+        onLogin(email);
+        setIsOpen(false);
+        setEmail("");
+        setPassword("");
+        setName("");
+        setIsFormValid(false)
+        toast({
+          title: isSignUp ? "Account created" : "Login successful",
+          description: isSignUp ? "Welcome to ExpenseTracker!" : "Welcome back!",
+          variant: "success",
+        });
+      })
+    }
+    if (isFormValid) {  
+      if(isSignUp) {  
+        random()      
       } else {
-        dispatch(userSignIn({email, password})).then((response: { payload: Object}) => {
+        dispatch(userSignIn({email, password})).then((response) => {
           console.log('response', response)
-          if(response.payload.error) {
+          const payload = response.payload as { error?: string }
+          if(payload.error) {
             toast({
               title: 'Login failed',
-              description: response.payload.error,
+              description: payload.error,
+              variant: "danger",
             });
             setIsFormValid(false)
             return
@@ -78,6 +86,7 @@ export function AuthModal({ onLogin }: AuthModalProps) {
           toast({
             title: isSignUp ? "Account created" : "Login successful",
             description: isSignUp ? "Welcome to ExpenseTracker!" : "Welcome back!",
+            variant: "success",
           });
         })
       }
@@ -91,7 +100,7 @@ export function AuthModal({ onLogin }: AuthModalProps) {
       toast({
         title: "Invalid email",
         description: "Please enter a valid email address",
-        variant: "destructive",
+        variant: "warning",
       });
       return;
     }
@@ -100,7 +109,7 @@ export function AuthModal({ onLogin }: AuthModalProps) {
       toast({
         title: "Password required",
         description: "Please enter your password",
-        variant: "destructive",
+        variant: "warning",
       });
       return;
     }
@@ -109,7 +118,7 @@ export function AuthModal({ onLogin }: AuthModalProps) {
       toast({
         title: "Name required",
         description: "Please enter your name",
-        variant: "destructive",
+        variant: "warning",
       });
       return;
     }

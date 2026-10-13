@@ -1,73 +1,41 @@
-# Welcome to your Lovable project
+# KipCash
 
-## Project info
+KipCash is a personal expense-management app built with Next.js, React, TypeScript, Tailwind CSS, shadcn/ui, Redux Toolkit, and Supabase.
 
-**URL**: https://lovable.dev/projects/da2bf94c-40fa-4c37-a2da-36519bcd3dee
-
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/da2bf94c-40fa-4c37-a2da-36519bcd3dee) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+## Local development
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The app runs on the Next.js App Router. The main routes are:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- `/` — landing page
+- `/finance` — accounts, balances, and unified transactions workspace
+- `/profile` — personal details and password security
 
-**Use GitHub Codespaces**
+The former `/manage-expenses` and `/expenses` URLs redirect to `/finance` so existing bookmarks continue to work.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+After deploying this cutover, apply [`supabase/migrations/20261013170000_remove_legacy_expenses.sql`](supabase/migrations/20261013170000_remove_legacy_expenses.sql) manually to remove the obsolete `public.expenses` table. This is intentionally destructive and does not affect `auth.users` or `public.profiles`.
 
-## What technologies are used for this project?
+Before using profile editing, apply [`supabase/migrations/20261013180000_add_profile_details.sql`](supabase/migrations/20261013180000_add_profile_details.sql) manually. Configure Supabase Auth reauthentication email templates to display the OTP token with `{{ .Token }}`.
 
-This project is built with:
+Before using `/finance`, apply [`supabase/schema/finance-workspace.sql`](supabase/schema/finance-workspace.sql) in the Supabase SQL editor. The screen shows a setup message if the new tables are not available yet.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Environment variables
 
-## How can I deploy this project?
+Create `.env.local` with the Supabase project URL and publishable key:
 
-Simply open [Lovable](https://lovable.dev/projects/da2bf94c-40fa-4c37-a2da-36519bcd3dee) and click on Share -> Publish.
+```sh
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=...
+```
 
-## Can I connect a custom domain to my Lovable project?
+## Checks
 
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+```sh
+npm run lint
+npx tsc --noEmit
+npm run build
+```

@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 228 32% 10%;
+    --foreground: 220 35% 96%;
+    --card: 226 30% 15%;
+    --card-foreground: 220 35% 96%;
+    --popover: 226 30% 14%;
+    --popover-foreground: 220 35% 96%;
+    --primary: 250 91% 70%;
+    --primary-foreground: 229 35% 10%;
+    --secondary: 229 25% 22%;
+    --secondary-foreground: 220 35% 95%;
+    --muted: 229 24% 20%;
+    --muted-foreground: 220 16% 70%;
+    --accent: 174 78% 52%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 350 82% 64%;
+    --destructive-foreground: 229 35% 10%;
+    --border: 228 23% 27%;
+    --input: 228 23% 29%;
+    --ring: 250 91% 70%;
+    --success: 152 69% 51%;
+    --success-foreground: 0 0% 100%;
+    --warning: 42 96% 58%;
+    --warning-foreground: 35 90% 10%;
+    --info: 198 90% 60%;
+    --info-foreground: 200 95% 10%;
+    --gradient-primary: linear-gradient(135deg, hsl(250 91% 70%), hsl(282 86% 68%));
+    --gradient-card: linear-gradient(145deg, hsl(226 30% 16%), hsl(233 28% 12%));
+    --gradient-accent: linear-gradient(135deg, hsl(174 78% 52%), hsl(191 90% 58%));
+    --gradient-subtle: linear-gradient(135deg, hsl(228 32% 10%), hsl(244 35% 14%) 48%, hsl(190 34% 12%));
+    --gradient-hero: linear-gradient(120deg, hsl(250 91% 70%), hsl(282 86% 68%) 52%, hsl(174 78% 52%));
+    --shadow-elegant: 0 24px 60px -28px hsl(250 91% 70% / 0.32);
+    --shadow-card: 0 14px 34px -22px hsl(0 0% 0% / 0.65);
+    --shadow-button: 0 12px 25px -14px hsl(250 91% 55% / 0.7);
+    --radius: 1rem;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    color-scheme: dark;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    background-image: radial-gradient(circle at 8% 0%, hsl(282 86% 68% / 0.14), transparent 28rem), radial-gradient(circle at 100% 12%, hsl(174 78% 52% / 0.11), transparent 30rem), radial-gradient(circle at 50% 100%, hsl(38 96% 58% / 0.06), transparent 24rem);
+  }
+
+  ::selection {
+    background: hsl(var(--accent) / 0.2);
+  }
+}
+
+@layer utilities {
+  .animate-fade-in-up {
+    animation: fade-in-up 0.7s ease-out both;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-soft-pulse {
+    animation: soft-pulse 3s ease-in-out infinite;
+  }
+
+  .stagger-1 { animation-delay: 80ms; }
+  .stagger-2 { animation-delay: 160ms; }
+  .stagger-3 { animation-delay: 240ms; }
+  .stagger-4 { animation-delay: 320ms; }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes soft-pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}

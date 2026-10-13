@@ -70,10 +70,11 @@ const Features = () => {
   ];
 
   return (
-    <section className="py-20 bg-background">
+    <section className="bg-background py-24">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-4">
+        <div className="mb-16 text-center animate-fade-in-up">
+          <p className="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-accent">Built for clarity</p>
+          <h2 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl">
             Everything You Need to
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent block">
               Manage Your Money
@@ -88,9 +89,9 @@ const Features = () => {
           {features.map((feature, index) => (
             <Card 
               key={index} 
-              className="p-6 hover:shadow-[var(--shadow-elegant)] transition-all duration-300 hover:translate-y-[-4px] border-0 bg-gradient-to-br from-white to-gray-50/50"
+              className={`group animate-fade-in-up border-border/70 bg-gradient-card p-6 shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-accent/30 hover:shadow-elegant [animation-delay:${index * 60}ms]`}
             >
-              <div className={`w-12 h-12 rounded-lg bg-current/10 flex items-center justify-center mb-4 ${feature.color}`}>
+              <div className={`mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-current/10 transition-transform duration-300 group-hover:rotate-[-6deg] group-hover:scale-110 ${feature.color}`}>
                 <span className={feature.color}>
                   {feature.icon}
                 </span>

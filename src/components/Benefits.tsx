@@ -43,12 +43,13 @@ const Benefits = () => {
   ];
 
   return (
-    <section className="py-20 bg-background">
+    <section className="bg-background py-24">
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-16 items-start">
           {/* Benefits Cards */}
           <div>
-            <h2 className="text-4xl font-bold mb-4">
+            <p className="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-accent">A better view of your money</p>
+            <h2 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl">
               Why Choose Our
               <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent block">
                 Expense Manager?
@@ -60,9 +61,9 @@ const Benefits = () => {
 
             <div className="space-y-6">
               {benefits.map((benefit, index) => (
-                <Card key={index} className="p-6 border-0 bg-gradient-to-r from-white to-gray-50/50 hover:shadow-[var(--shadow-card)] transition-all duration-300">
+                <Card key={index} className={`group animate-fade-in-up border-border/70 bg-gradient-card p-6 shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-elegant [animation-delay:${index * 80}ms]`}>
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary flex-shrink-0">
+                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-accent/10 text-accent transition-transform duration-300 group-hover:rotate-[-6deg] group-hover:scale-105">
                       {benefit.icon}
                     </div>
                     <div className="flex-1">
@@ -80,7 +81,7 @@ const Benefits = () => {
 
           {/* Features List */}
           <div>
-            <Card className="p-8 bg-gradient-to-br from-primary/5 to-accent/5 border-0 sticky top-8">
+            <Card className="sticky top-24 border-primary/10 bg-gradient-to-br from-primary/10 to-accent/10 p-8 shadow-elegant">
               <h3 className="text-2xl font-bold mb-6">Everything Included</h3>
               <div className="space-y-4">
                 {features.map((feature, index) => (
@@ -93,7 +94,7 @@ const Benefits = () => {
                 ))}
               </div>
 
-              <div className="mt-8 p-6 bg-white rounded-lg border border-primary/10">
+              <div className="mt-8 rounded-2xl border border-primary/10 bg-card/80 p-6 backdrop-blur-sm">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-primary mb-2">Free</div>
                   <div className="text-muted-foreground mb-4">14-day trial, no credit card required</div>
