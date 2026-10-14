@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { format } from "date-fns";
 import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, CalendarIcon, Loader2, RotateCcw, WalletCards } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import type { Account, Transaction, TransactionInput, TransactionStatus, TransactionType } from "@/types/finance";
+import type { Account, Category, Payee, Transaction, TransactionInput, TransactionStatus, TransactionType } from "@/types/finance";
 
 const typeOptions: { value: TransactionType; label: string; helper: string; icon: typeof ArrowUpRight }[] = [
   { value: "expense", label: "Expense", helper: "Money leaving an account", icon: ArrowDownLeft },
@@ -22,19 +22,25 @@ const typeOptions: { value: TransactionType; label: string; helper: string; icon
 
 interface TransactionFormProps {
   accounts: Account[];
+  categories: Category[];
+  payees: Payee[];
   onSave: (input: TransactionInput) => Promise<boolean>;
   initialTransaction?: Transaction | null;
   disabled?: boolean;
 }
 
-export function TransactionForm({ accounts, onSave, initialTransaction = null, disabled = false }: TransactionFormProps) {
+export function TransactionForm({ accounts, categories, payees, onSave, initialTransaction = null, disabled = false }: TransactionFormProps) {
   const isEditing = Boolean(initialTransaction);
   const [type, setType] = useState<TransactionType>(initialTransaction?.type ?? "expense");
   const [accountId, setAccountId] = useState(initialTransaction?.account_id ?? "");
   const [toAccountId, setToAccountId] = useState(initialTransaction?.to_account_id ?? "");
   const [amount, setAmount] = useState(initialTransaction ? String(initialTransaction.amount) : "");
   const [currency, setCurrency] = useState(initialTransaction?.currency ?? "INR");
+  const [categoryId, setCategoryId] = useState(initialTransaction?.category_id ?? "");
+  const [subcategoryId, setSubcategoryId] = useState(initialTransaction?.subcategory_id ?? "");
   const [category, setCategory] = useState(initialTransaction?.category ?? "");
+  const [subcategory, setSubcategory] = useState(initialTransaction?.subcategory ?? "");
+  const [payeeId, setPayeeId] = useState(initialTransaction?.payee_id ?? "");
   const [payee, setPayee] = useState(initialTransaction?.payee ?? "");
   const [description, setDescription] = useState(initialTransaction?.description ?? "");
   const [status, setStatus] = useState<TransactionStatus>(initialTransaction?.status ?? "cleared");
@@ -48,13 +54,58 @@ export function TransactionForm({ accounts, onSave, initialTransaction = null, d
     setToAccountId(initialTransaction?.to_account_id ?? "");
     setAmount(initialTransaction ? String(initialTransaction.amount) : "");
     setCurrency(initialTransaction?.currency ?? "INR");
+    setCategoryId(initialTransaction?.category_id ?? "");
+    setSubcategoryId(initialTransaction?.subcategory_id ?? "");
     setCategory(initialTransaction?.category ?? "");
+    setSubcategory(initialTransaction?.subcategory ?? "");
+    setPayeeId(initialTransaction?.payee_id ?? "");
     setPayee(initialTransaction?.payee ?? "");
     setDescription(initialTransaction?.description ?? "");
     setStatus(initialTransaction?.status ?? "cleared");
     setDate(initialTransaction?.occurred_at ?? new Date());
     setValidationError(null);
   }, [initialTransaction]);
+
+  const rootCategories = useMemo(() => categories.filter((item) => !item.archived && !item.parent_id && (type === "income" || type === "refund" ? item.kind === "income" || item.kind === "both" : item.kind === "expense" || item.kind === "both")), [categories, type]);
+  const subcategories = useMemo(() => categories.filter((item) => !item.archived && item.parent_id === categoryId), [categories, categoryId]);
+  const activePayees = useMemo(() => payees.filter((item) => !item.archived), [payees]);
+
+  const handleCategoryChange = (value: string) => {
+    if (value === "custom") {
+      setCategoryId("");
+      setSubcategoryId("");
+      setCategory("");
+      setSubcategory("");
+      return;
+    }
+    const selected = categories.find((item) => item.id === value);
+    setCategoryId(value);
+    setSubcategoryId("");
+    setCategory(selected?.name ?? "");
+    setSubcategory("");
+  };
+
+  const handleSubcategoryChange = (value: string) => {
+    if (value === "none") {
+      setSubcategoryId("");
+      setSubcategory("");
+      return;
+    }
+    const selected = categories.find((item) => item.id === value);
+    setSubcategoryId(value);
+    setSubcategory(selected?.name ?? "");
+  };
+
+  const handlePayeeChange = (value: string) => {
+    if (value === "custom") {
+      setPayeeId("");
+      setPayee("");
+      return;
+    }
+    const selected = activePayees.find((item) => item.id === value);
+    setPayeeId(value);
+    setPayee(selected?.name ?? "");
+  };
 
   const handleAccountChange = (value: string) => {
     setAccountId(value);
@@ -96,7 +147,11 @@ export function TransactionForm({ accounts, onSave, initialTransaction = null, d
       amount: parsedAmount,
       currency,
       exchange_rate: 1,
+      category_id: categoryId || null,
+      subcategory_id: subcategoryId || null,
       category: category || null,
+      subcategory: subcategory || null,
+      payee_id: payeeId || null,
       payee: payee || null,
       description: description || null,
       occurred_at: date,
@@ -106,7 +161,11 @@ export function TransactionForm({ accounts, onSave, initialTransaction = null, d
 
     if (saved && !isEditing) {
       setAmount("");
+      setCategoryId("");
+      setSubcategoryId("");
       setCategory("");
+      setSubcategory("");
+      setPayeeId("");
       setPayee("");
       setDescription("");
       setToAccountId("");
@@ -136,9 +195,31 @@ export function TransactionForm({ accounts, onSave, initialTransaction = null, d
       {type === "transfer" && <div className="grid gap-4 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor="transfer-amount">Amount</Label><Input id="transfer-amount" type="number" min="0.01" step="0.01" placeholder="0.00" value={amount} onChange={(event) => setAmount(event.target.value)} disabled={disabled || isSaving} /></div><div className="space-y-2"><Label>Currency</Label><Input value={currency} onChange={(event) => setCurrency(event.target.value.toUpperCase())} maxLength={3} disabled={disabled || isSaving} /></div></div>}
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2"><Label htmlFor="transaction-payee">Payee / merchant</Label><Input id="transaction-payee" placeholder="e.g. Swiggy, salary, rent" value={payee} onChange={(event) => setPayee(event.target.value)} disabled={disabled || isSaving} /></div>
-        <div className="space-y-2"><Label htmlFor="transaction-category">Category</Label><Input id="transaction-category" placeholder="e.g. Food & Dining" value={category} onChange={(event) => setCategory(event.target.value)} disabled={disabled || isSaving} /></div>
+        <div className="space-y-2">
+          <Label>Payee / merchant</Label>
+          <Select value={payeeId || "custom"} onValueChange={handlePayeeChange} disabled={disabled || isSaving}>
+            <SelectTrigger><SelectValue placeholder="Choose payee" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="custom">Type a payee manually</SelectItem>
+              {activePayees.map((item) => <SelectItem key={item.id} value={item.id}>{item.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          {!payeeId && <Input id="transaction-payee" placeholder="e.g. Swiggy, salary, rent" value={payee} onChange={(event) => setPayee(event.target.value)} disabled={disabled || isSaving} />}
+        </div>
+        <div className="space-y-2">
+          <Label>Category</Label>
+          <Select value={categoryId || "custom"} onValueChange={handleCategoryChange} disabled={disabled || isSaving}>
+            <SelectTrigger><SelectValue placeholder="Choose category" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="custom">Type a category manually</SelectItem>
+              {rootCategories.map((item) => <SelectItem key={item.id} value={item.id}>{item.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          {!categoryId && <Input id="transaction-category" placeholder="e.g. Food & Dining" value={category} onChange={(event) => setCategory(event.target.value)} disabled={disabled || isSaving} />}
+        </div>
       </div>
+
+      {categoryId && subcategories.length > 0 && <div className="space-y-2"><Label>Subcategory</Label><Select value={subcategoryId || "none"} onValueChange={handleSubcategoryChange} disabled={disabled || isSaving}><SelectTrigger><SelectValue placeholder="Choose subcategory" /></SelectTrigger><SelectContent><SelectItem value="none">No subcategory</SelectItem>{subcategories.map((item) => <SelectItem key={item.id} value={item.id}>{item.name}</SelectItem>)}</SelectContent></Select></div>}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2"><Label>Date</Label><Popover><PopoverTrigger asChild><Button variant="outline" className="w-full justify-start text-left font-normal" disabled={disabled || isSaving}><CalendarIcon className="mr-2 h-4 w-4" />{format(date, "PPP")}</Button></PopoverTrigger><PopoverContent className="w-auto p-0"><Calendar mode="single" selected={date} onSelect={(nextDate) => nextDate && setDate(nextDate)} initialFocus /></PopoverContent></Popover></div>
