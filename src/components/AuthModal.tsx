@@ -37,7 +37,7 @@ export function AuthModal({ onLogin }: AuthModalProps) {
           data: {
             name: name,
           },
-          emailRedirectTo: 'http://localhost:8080',
+          emailRedirectTo: `${(process.env.NEXT_PUBLIC_SITE_URL || window.location.origin).replace(/\/$/, "")}/`,
         },
       }).then(response => {
         if(response.error) {

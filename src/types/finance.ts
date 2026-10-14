@@ -3,6 +3,7 @@ import { isValid, parseISO } from "date-fns";
 export type AccountType = "bank" | "cash" | "credit_card" | "wallet";
 export type TransactionType = "income" | "expense" | "transfer" | "refund";
 export type TransactionStatus = "pending" | "cleared" | "reconciled";
+export type TransferDirection = "debit" | "credit";
 
 export interface Account {
   id: string;
@@ -31,11 +32,15 @@ export interface AccountInput {
   opening_balance: number;
 }
 
+export type AccountUpdateInput = AccountInput;
+
 export interface Transaction {
   id: string;
   account_id: string;
   to_account_id: string | null;
   type: TransactionType;
+  transfer_group_id: string | null;
+  transfer_direction: TransferDirection | null;
   amount: number;
   currency: string;
   exchange_rate: number;
@@ -54,6 +59,8 @@ export interface TransactionRow {
   account_id: string;
   to_account_id?: string | null;
   type: TransactionType;
+  transfer_group_id?: string | null;
+  transfer_direction?: TransferDirection | null;
   amount: number | string;
   currency?: string | null;
   exchange_rate?: number | string | null;
@@ -107,6 +114,8 @@ export function normalizeTransaction(row: TransactionRow): Transaction {
     account_id: row.account_id,
     to_account_id: row.to_account_id ?? null,
     type: row.type,
+    transfer_group_id: row.transfer_group_id ?? null,
+    transfer_direction: row.transfer_direction ?? (row.type === "transfer" ? "debit" : null),
     amount: Number(row.amount),
     currency: row.currency || "INR",
     exchange_rate: Number(row.exchange_rate) || 1,

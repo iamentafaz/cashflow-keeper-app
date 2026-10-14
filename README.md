@@ -23,14 +23,19 @@ Before using profile editing, apply [`supabase/migrations/20261013180000_add_pro
 
 Before using `/finance`, apply [`supabase/schema/finance-workspace.sql`](supabase/schema/finance-workspace.sql) in the Supabase SQL editor. The screen shows a setup message if the new tables are not available yet.
 
+After applying the finance schema, apply [`supabase/migrations/20261014100000_transaction_lifecycle.sql`](supabase/migrations/20261014100000_transaction_lifecycle.sql) to enable editable/deletable transactions and linked debit/credit transfer records. Apply [`supabase/migrations/20261013190000_account_archive_only.sql`](supabase/migrations/20261013190000_account_archive_only.sql) to prevent account deletion and use archive/restore instead.
+
 ## Environment variables
 
-Create `.env.local` with the Supabase project URL and publishable key:
+Create `.env.local` with the Supabase project URL, publishable key, and site URL:
 
 ```sh
 NEXT_PUBLIC_SUPABASE_URL=...
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=...
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
+
+For an S3/CloudFront static export, set the same variables in the build environment before running `npm run build`. Copy `.env.example` to `.env.local` for local development, and replace `NEXT_PUBLIC_SITE_URL` with the deployed HTTPS URL in production.
 
 ## Checks
 

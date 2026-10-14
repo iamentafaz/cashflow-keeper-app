@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { format } from "date-fns";
 import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, CalendarIcon, Loader2, RotateCcw, WalletCards } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import type { Account, TransactionInput, TransactionStatus, TransactionType } from "@/types/finance";
+import type { Account, Transaction, TransactionInput, TransactionStatus, TransactionType } from "@/types/finance";
 
 const typeOptions: { value: TransactionType; label: string; helper: string; icon: typeof ArrowUpRight }[] = [
   { value: "expense", label: "Expense", helper: "Money leaving an account", icon: ArrowDownLeft },
@@ -22,31 +22,47 @@ const typeOptions: { value: TransactionType; label: string; helper: string; icon
 
 interface TransactionFormProps {
   accounts: Account[];
-  onCreate: (input: TransactionInput) => Promise<boolean>;
+  onSave: (input: TransactionInput) => Promise<boolean>;
+  initialTransaction?: Transaction | null;
   disabled?: boolean;
 }
 
-export function TransactionForm({ accounts, onCreate, disabled = false }: TransactionFormProps) {
-  const [type, setType] = useState<TransactionType>("expense");
-  const [accountId, setAccountId] = useState("");
-  const [toAccountId, setToAccountId] = useState("");
-  const [amount, setAmount] = useState("");
-  const [currency, setCurrency] = useState("INR");
-  const [category, setCategory] = useState("");
-  const [payee, setPayee] = useState("");
-  const [description, setDescription] = useState("");
-  const [status, setStatus] = useState<TransactionStatus>("cleared");
-  const [date, setDate] = useState<Date>(new Date());
+export function TransactionForm({ accounts, onSave, initialTransaction = null, disabled = false }: TransactionFormProps) {
+  const isEditing = Boolean(initialTransaction);
+  const [type, setType] = useState<TransactionType>(initialTransaction?.type ?? "expense");
+  const [accountId, setAccountId] = useState(initialTransaction?.account_id ?? "");
+  const [toAccountId, setToAccountId] = useState(initialTransaction?.to_account_id ?? "");
+  const [amount, setAmount] = useState(initialTransaction ? String(initialTransaction.amount) : "");
+  const [currency, setCurrency] = useState(initialTransaction?.currency ?? "INR");
+  const [category, setCategory] = useState(initialTransaction?.category ?? "");
+  const [payee, setPayee] = useState(initialTransaction?.payee ?? "");
+  const [description, setDescription] = useState(initialTransaction?.description ?? "");
+  const [status, setStatus] = useState<TransactionStatus>(initialTransaction?.status ?? "cleared");
+  const [date, setDate] = useState<Date>(initialTransaction?.occurred_at ?? new Date());
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    setType(initialTransaction?.type ?? "expense");
+    setAccountId(initialTransaction?.account_id ?? "");
+    setToAccountId(initialTransaction?.to_account_id ?? "");
+    setAmount(initialTransaction ? String(initialTransaction.amount) : "");
+    setCurrency(initialTransaction?.currency ?? "INR");
+    setCategory(initialTransaction?.category ?? "");
+    setPayee(initialTransaction?.payee ?? "");
+    setDescription(initialTransaction?.description ?? "");
+    setStatus(initialTransaction?.status ?? "cleared");
+    setDate(initialTransaction?.occurred_at ?? new Date());
+    setValidationError(null);
+  }, [initialTransaction]);
 
   const handleAccountChange = (value: string) => {
     setAccountId(value);
     const selected = accounts.find((account) => account.id === value);
-    if (selected) setCurrency(selected.currency);
+    if (selected && !isEditing) setCurrency(selected.currency);
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     const parsedAmount = Number(amount);
 
@@ -62,6 +78,10 @@ export function TransactionForm({ accounts, onCreate, disabled = false }: Transa
       setValidationError("Enter an amount greater than zero.");
       return;
     }
+    if (!/^[A-Za-z]{3}$/.test(currency.trim())) {
+      setValidationError("Use a 3-letter currency code, such as INR or USD.");
+      return;
+    }
     if ((type === "expense" || type === "income" || type === "refund") && !category.trim() && !description.trim()) {
       setValidationError("Add a category or a short description.");
       return;
@@ -69,7 +89,7 @@ export function TransactionForm({ accounts, onCreate, disabled = false }: Transa
 
     setValidationError(null);
     setIsSaving(true);
-    const saved = await onCreate({
+    const saved = await onSave({
       account_id: accountId,
       to_account_id: type === "transfer" ? toAccountId : null,
       type,
@@ -84,7 +104,7 @@ export function TransactionForm({ accounts, onCreate, disabled = false }: Transa
     });
     setIsSaving(false);
 
-    if (saved) {
+    if (saved && !isEditing) {
       setAmount("");
       setCategory("");
       setPayee("");
@@ -99,13 +119,14 @@ export function TransactionForm({ accounts, onCreate, disabled = false }: Transa
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {typeOptions.map(({ value, label, helper, icon: Icon }) => (
-          <button key={value} type="button" onClick={() => setType(value)} disabled={disabled || isSaving} className={cn("rounded-2xl border p-3 text-left transition-all", type === value ? "border-primary bg-primary/15 text-primary shadow-button" : "border-border bg-secondary/40 text-muted-foreground hover:border-primary/50 hover:text-foreground")}>
+          <button key={value} type="button" onClick={() => setType(value)} disabled={disabled || isSaving || isEditing} className={cn("rounded-2xl border p-3 text-left transition-all", type === value ? "border-primary bg-primary/15 text-primary shadow-button" : "border-border bg-secondary/40 text-muted-foreground hover:border-primary/50 hover:text-foreground", isEditing && type !== value && "cursor-not-allowed opacity-50")}>
             <Icon className="mb-2 h-5 w-5" />
             <span className="block text-sm font-semibold">{label}</span>
             <span className="mt-1 block text-[11px] leading-4 opacity-75">{helper}</span>
           </button>
         ))}
       </div>
+      {isEditing && <p className="text-xs text-muted-foreground">Transaction type cannot be changed after saving. Create a new transaction if the type is wrong.</p>}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2"><Label>From account</Label><Select value={accountId} onValueChange={handleAccountChange} disabled={disabled || isSaving || accounts.length === 0}><SelectTrigger><SelectValue placeholder={accounts.length === 0 ? "No accounts found" : "Choose account"} /></SelectTrigger><SelectContent>{accounts.length === 0 ? <div className="px-3 py-6 text-center text-sm text-muted-foreground"><WalletCards className="mx-auto mb-2 h-5 w-5 text-primary" /><p className="font-medium text-foreground">No accounts found</p><p className="mt-1 text-xs">Add an account before recording a transaction.</p></div> : accounts.map((account) => <SelectItem key={account.id} value={account.id}>{account.name} · {account.currency}</SelectItem>)}</SelectContent></Select>{accounts.length === 0 && <p className="text-xs text-warning">Create an account first, then reopen this form.</p>}</div>
@@ -127,8 +148,7 @@ export function TransactionForm({ accounts, onCreate, disabled = false }: Transa
       <div className="space-y-2"><Label htmlFor="transaction-description">Note</Label><Textarea id="transaction-description" placeholder="Add context for your future self" value={description} onChange={(event) => setDescription(event.target.value)} disabled={disabled || isSaving} /></div>
 
       {validationError && <p role="alert" className="text-sm text-destructive">{validationError}</p>}
-      <Button type="submit" className="w-full" disabled={disabled || isSaving || accounts.length === 0}>{isSaving ? <><Loader2 className="h-4 w-4 animate-spin" /> Saving transaction...</> : "Save transaction"}</Button>
+      <Button type="submit" className="w-full" disabled={disabled || isSaving || accounts.length === 0}>{isSaving ? <><Loader2 className="h-4 w-4 animate-spin" /> {isEditing ? "Updating transaction..." : "Saving transaction..."}</> : isEditing ? "Update transaction" : "Save transaction"}</Button>
     </form>
   );
 }
-
