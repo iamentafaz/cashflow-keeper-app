@@ -23,7 +23,7 @@ Before using profile editing, apply [`supabase/migrations/20261013180000_add_pro
 
 Before using `/finance`, apply [`supabase/schema/finance-workspace.sql`](supabase/schema/finance-workspace.sql) in the Supabase SQL editor. The screen shows a setup message if the new tables are not available yet.
 
-After applying the finance schema, apply [`supabase/migrations/20261014100000_transaction_lifecycle.sql`](supabase/migrations/20261014100000_transaction_lifecycle.sql) to enable editable/deletable transactions and linked debit/credit transfer records. Apply [`supabase/migrations/20261013190000_account_archive_only.sql`](supabase/migrations/20261013190000_account_archive_only.sql) to prevent account deletion and use archive/restore instead. Apply [`supabase/migrations/20261014110000_categories_payees_management.sql`](supabase/migrations/20261014110000_categories_payees_management.sql) to enable managed categories, subcategories, payees, and transaction ownership checks.
+After applying the finance schema, apply [`supabase/migrations/20261014100000_transaction_lifecycle.sql`](supabase/migrations/20261014100000_transaction_lifecycle.sql) to enable editable/deletable transactions and linked debit/credit transfer records. Apply [`supabase/migrations/20261013190000_account_archive_only.sql`](supabase/migrations/20261013190000_account_archive_only.sql) to prevent account deletion and use archive/restore instead. Apply [`supabase/migrations/20261014110000_categories_payees_management.sql`](supabase/migrations/20261014110000_categories_payees_management.sql) to enable managed categories, subcategories, payees, and transaction ownership checks. Apply [`supabase/migrations/20261015100000_currency_exchange_management.sql`](supabase/migrations/20261015100000_currency_exchange_management.sql) to secure user exchange-rate caching and validate profile currencies.
 
 ## Environment variables
 
@@ -36,6 +36,8 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
 For an S3/CloudFront static export, set the same variables in the build environment before running `npm run build`. Copy `.env.example` to `.env.local` for local development, and replace `NEXT_PUBLIC_SITE_URL` with the deployed HTTPS URL in production.
+
+Exchange rates use the keyless Frankfurter API. The app caches fetched rates in `public.exchange_rates` and stores the applied base-currency rate on each transaction.
 
 ## Checks
 

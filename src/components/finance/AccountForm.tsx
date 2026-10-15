@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CurrencySelect } from "@/components/finance/CurrencySelect";
 import type { Account, AccountInput, AccountType } from "@/types/finance";
 
 const accountOptions: { value: AccountType; label: string; icon: typeof Landmark }[] = [
@@ -109,7 +110,7 @@ export function AccountForm({ onSave, initialAccount = null, hasTransactions = f
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="account-currency">Currency</Label>
-              <Input id="account-currency" maxLength={3} placeholder="INR" value={currency} onChange={(event) => setCurrency(event.target.value.toUpperCase())} disabled={disabled || isSaving} />
+              <CurrencySelect value={currency} onValueChange={setCurrency} disabled={disabled || isSaving} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="opening-balance">Opening balance</Label>

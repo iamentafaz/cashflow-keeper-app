@@ -34,6 +34,7 @@ export function TransactionForm({ accounts, categories, payees, onSave, initialT
   const [type, setType] = useState<TransactionType>(initialTransaction?.type ?? "expense");
   const [accountId, setAccountId] = useState(initialTransaction?.account_id ?? "");
   const [toAccountId, setToAccountId] = useState(initialTransaction?.to_account_id ?? "");
+  const [toAmount, setToAmount] = useState(initialTransaction?.to_amount ? String(initialTransaction.to_amount) : "");
   const [amount, setAmount] = useState(initialTransaction ? String(initialTransaction.amount) : "");
   const [currency, setCurrency] = useState(initialTransaction?.currency ?? "INR");
   const [categoryId, setCategoryId] = useState(initialTransaction?.category_id ?? "");
@@ -52,6 +53,7 @@ export function TransactionForm({ accounts, categories, payees, onSave, initialT
     setType(initialTransaction?.type ?? "expense");
     setAccountId(initialTransaction?.account_id ?? "");
     setToAccountId(initialTransaction?.to_account_id ?? "");
+    setToAmount(initialTransaction?.to_amount ? String(initialTransaction.to_amount) : "");
     setAmount(initialTransaction ? String(initialTransaction.amount) : "");
     setCurrency(initialTransaction?.currency ?? "INR");
     setCategoryId(initialTransaction?.category_id ?? "");
@@ -110,7 +112,7 @@ export function TransactionForm({ accounts, categories, payees, onSave, initialT
   const handleAccountChange = (value: string) => {
     setAccountId(value);
     const selected = accounts.find((account) => account.id === value);
-    if (selected && !isEditing) setCurrency(selected.currency);
+    if (selected) setCurrency(selected.currency);
   };
 
   const handleSubmit = async (event: FormEvent) => {
@@ -129,6 +131,11 @@ export function TransactionForm({ accounts, categories, payees, onSave, initialT
       setValidationError("Enter an amount greater than zero.");
       return;
     }
+    const parsedToAmount = type === "transfer" ? Number(toAmount || amount) : null;
+    if (type === "transfer" && (!Number.isFinite(parsedToAmount) || parsedToAmount <= 0)) {
+      setValidationError("Enter the amount received by the destination account.");
+      return;
+    }
     if (!/^[A-Za-z]{3}$/.test(currency.trim())) {
       setValidationError("Use a 3-letter currency code, such as INR or USD.");
       return;
@@ -144,6 +151,7 @@ export function TransactionForm({ accounts, categories, payees, onSave, initialT
       account_id: accountId,
       to_account_id: type === "transfer" ? toAccountId : null,
       type,
+      to_amount: parsedToAmount,
       amount: parsedAmount,
       currency,
       exchange_rate: 1,
@@ -161,6 +169,7 @@ export function TransactionForm({ accounts, categories, payees, onSave, initialT
 
     if (saved && !isEditing) {
       setAmount("");
+      setToAmount("");
       setCategoryId("");
       setSubcategoryId("");
       setCategory("");
@@ -189,10 +198,10 @@ export function TransactionForm({ accounts, categories, payees, onSave, initialT
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2"><Label>From account</Label><Select value={accountId} onValueChange={handleAccountChange} disabled={disabled || isSaving || accounts.length === 0}><SelectTrigger><SelectValue placeholder={accounts.length === 0 ? "No accounts found" : "Choose account"} /></SelectTrigger><SelectContent>{accounts.length === 0 ? <div className="px-3 py-6 text-center text-sm text-muted-foreground"><WalletCards className="mx-auto mb-2 h-5 w-5 text-primary" /><p className="font-medium text-foreground">No accounts found</p><p className="mt-1 text-xs">Add an account before recording a transaction.</p></div> : accounts.map((account) => <SelectItem key={account.id} value={account.id}>{account.name} · {account.currency}</SelectItem>)}</SelectContent></Select>{accounts.length === 0 && <p className="text-xs text-warning">Create an account first, then reopen this form.</p>}</div>
-        {type === "transfer" ? <div className="space-y-2"><Label>To account</Label><Select value={toAccountId} onValueChange={setToAccountId} disabled={disabled || isSaving || accounts.length < 2}><SelectTrigger><SelectValue placeholder={accounts.length < 2 ? "No destination account" : "Destination account"} /></SelectTrigger><SelectContent>{accounts.filter((account) => account.id !== accountId).length === 0 ? <div className="px-3 py-6 text-center text-sm text-muted-foreground"><ArrowLeftRight className="mx-auto mb-2 h-5 w-5 text-info" /><p className="font-medium text-foreground">No destination account</p><p className="mt-1 text-xs">Add a second account to make a transfer.</p></div> : accounts.filter((account) => account.id !== accountId).map((account) => <SelectItem key={account.id} value={account.id}>{account.name} · {account.currency}</SelectItem>)}</SelectContent></Select></div> : <div className="space-y-2"><Label htmlFor="transaction-amount">Amount</Label><Input id="transaction-amount" type="number" min="0.01" step="0.01" placeholder="0.00" value={amount} onChange={(event) => setAmount(event.target.value)} disabled={disabled || isSaving} /></div>}
+        {type === "transfer" ? <div className="space-y-2"><Label>To account</Label><Select value={toAccountId} onValueChange={(value) => { setToAccountId(value); if (!toAmount) setToAmount(amount); }} disabled={disabled || isSaving || accounts.length < 2}><SelectTrigger><SelectValue placeholder={accounts.length < 2 ? "No destination account" : "Destination account"} /></SelectTrigger><SelectContent>{accounts.filter((account) => account.id !== accountId).length === 0 ? <div className="px-3 py-6 text-center text-sm text-muted-foreground"><ArrowLeftRight className="mx-auto mb-2 h-5 w-5 text-info" /><p className="font-medium text-foreground">No destination account</p><p className="mt-1 text-xs">Add a second account to make a transfer.</p></div> : accounts.filter((account) => account.id !== accountId).map((account) => <SelectItem key={account.id} value={account.id}>{account.name} · {account.currency}</SelectItem>)}</SelectContent></Select></div> : <div className="space-y-2"><Label htmlFor="transaction-amount">Amount</Label><Input id="transaction-amount" type="number" min="0.01" step="0.01" placeholder="0.00" value={amount} onChange={(event) => setAmount(event.target.value)} disabled={disabled || isSaving} /></div>}
       </div>
 
-      {type === "transfer" && <div className="grid gap-4 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor="transfer-amount">Amount</Label><Input id="transfer-amount" type="number" min="0.01" step="0.01" placeholder="0.00" value={amount} onChange={(event) => setAmount(event.target.value)} disabled={disabled || isSaving} /></div><div className="space-y-2"><Label>Currency</Label><Input value={currency} onChange={(event) => setCurrency(event.target.value.toUpperCase())} maxLength={3} disabled={disabled || isSaving} /></div></div>}
+      {type === "transfer" && <div className="grid gap-4 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor="transfer-amount">Amount leaving ({accounts.find((account) => account.id === accountId)?.currency ?? currency})</Label><Input id="transfer-amount" type="number" min="0.01" step="0.01" placeholder="0.00" value={amount} onChange={(event) => setAmount(event.target.value)} disabled={disabled || isSaving} /></div><div className="space-y-2"><Label htmlFor="transfer-to-amount">Amount received ({accounts.find((account) => account.id === toAccountId)?.currency ?? "currency"})</Label><Input id="transfer-to-amount" type="number" min="0.01" step="0.01" placeholder={amount || "0.00"} value={toAmount} onChange={(event) => setToAmount(event.target.value)} disabled={disabled || isSaving || !toAccountId} /></div></div>}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">

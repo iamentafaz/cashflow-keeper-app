@@ -12,6 +12,7 @@ import {
   Banknote,
   CheckCircle2,
   CircleAlert,
+  CircleDollarSign,
   Clock3,
   CreditCard,
   Filter,
@@ -39,6 +40,8 @@ import { createClient } from "@/utils/supabase/client";
 import { AccountForm } from "@/components/finance/AccountForm";
 import { CategoryPayeeManager } from "@/components/finance/CategoryPayeeManager";
 import { TransactionForm } from "@/components/finance/TransactionForm";
+import { supportedCurrencies } from "@/lib/currencies";
+import { fetchLatestRates, invertRatesToBase } from "@/lib/exchange-rates";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -63,6 +66,7 @@ import type {
   Category,
   CategoryInput,
   CategoryRow,
+  ExchangeRateRow,
   Payee,
   PayeeInput,
   PayeeRow,
@@ -123,6 +127,13 @@ function balanceForAccount(account: Account, transactions: Transaction[]) {
   }, account.opening_balance);
 }
 
+function convertToBase(amount: number, currency: string, baseCurrency: string, ratesToBase: Record<string, number>, snapshotRate?: number) {
+  const normalizedCurrency = currency.toUpperCase();
+  if (normalizedCurrency === baseCurrency) return amount;
+  const rate = ratesToBase[normalizedCurrency] ?? (snapshotRate && snapshotRate !== 1 ? snapshotRate : null);
+  return rate ? amount * rate : null;
+}
+
 export default function FinancePage() {
   const user = useSelector((state: RootState) => state.user.user);
   const userId = typeof user?.id === "string" ? user.id : null;
@@ -132,6 +143,11 @@ export default function FinancePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [payees, setPayees] = useState<Payee[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [baseCurrency, setBaseCurrency] = useState("INR");
+  const [ratesToBase, setRatesToBase] = useState<Record<string, number>>({ INR: 1 });
+  const [rateDate, setRateDate] = useState<string | null>(null);
+  const [isRefreshingRates, setIsRefreshingRates] = useState(false);
+  const [ratesError, setRatesError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const [isCreatingTransaction, setIsCreatingTransaction] = useState(false);
@@ -155,6 +171,8 @@ export default function FinancePage() {
       setCategories([]);
       setPayees([]);
       setTransactions([]);
+      setBaseCurrency("INR");
+      setRatesToBase({ INR: 1 });
       setIsLoading(false);
       return;
     }
@@ -170,11 +188,13 @@ export default function FinancePage() {
 
     try {
       const supabase = createClient();
-      const [accountResult, categoryResult, payeeResult, transactionResult] = await Promise.all([
+      const [accountResult, categoryResult, payeeResult, transactionResult, profileResult, exchangeRateResult] = await Promise.all([
         supabase.from("accounts").select("id, name, type, currency, opening_balance, archived, created_at").eq("user_id", userId).order("created_at", { ascending: true }),
         supabase.from("categories").select("id, user_id, name, parent_id, kind, color, archived, created_at").order("name", { ascending: true }),
         supabase.from("payees").select("id, user_id, name, default_category_id, archived, created_at").eq("user_id", userId).order("name", { ascending: true }),
         supabase.from("transactions").select("id, account_id, to_account_id, type, amount, currency, exchange_rate, category_id, subcategory_id, category, subcategory, payee_id, payee, description, occurred_at, status, notes, created_at, transfer_group_id, transfer_direction").eq("user_id", userId).order("occurred_at", { ascending: false }).order("created_at", { ascending: false }),
+        supabase.from("profiles").select("default_currency").eq("id", userId).maybeSingle(),
+        supabase.from("exchange_rates").select("id, user_id, base_currency, quote_currency, rate, rate_date, source, fetched_at").eq("user_id", userId).order("rate_date", { ascending: false }),
       ]);
 
       if (accountResult.error || categoryResult.error || payeeResult.error || transactionResult.error) {
@@ -191,6 +211,20 @@ export default function FinancePage() {
       setCategories((categoryResult.data ?? []).map((row) => normalizeCategory(row as CategoryRow)));
       setPayees((payeeResult.data ?? []).map((row) => normalizePayee(row as PayeeRow)));
       setTransactions((transactionResult.data ?? []).map((row) => normalizeTransaction(row as TransactionRow)));
+      const resolvedBaseCurrency = typeof profileResult.data?.default_currency === "string" && /^[A-Z]{3}$/.test(profileResult.data.default_currency) ? profileResult.data.default_currency : "INR";
+      setBaseCurrency(resolvedBaseCurrency);
+      if (!exchangeRateResult.error) {
+        const cachedRates = (exchangeRateResult.data ?? []).reduce<Record<string, number>>((rates, row) => {
+          const rateRow = row as ExchangeRateRow;
+          if (rateRow.base_currency === resolvedBaseCurrency && Number(rateRow.rate) > 0 && rates[rateRow.quote_currency] === undefined) {
+            rates[rateRow.quote_currency] = 1 / Number(rateRow.rate);
+          }
+          return rates;
+        }, { [resolvedBaseCurrency]: 1 });
+        setRatesToBase(cachedRates);
+      } else {
+        setRatesToBase({ [resolvedBaseCurrency]: 1 });
+      }
     } catch (loadError) {
       const message = getErrorMessage(loadError);
       setError(message);
@@ -204,6 +238,55 @@ export default function FinancePage() {
 
   const activeAccounts = useMemo(() => accounts.filter((account) => !account.archived), [accounts]);
   const archivedAccounts = useMemo(() => accounts.filter((account) => account.archived), [accounts]);
+  const currencyKey = useMemo(() => [...new Set([...accounts.map((account) => account.currency), ...transactions.map((transaction) => transaction.currency), baseCurrency])].map((currency) => currency.toUpperCase()).sort().join(","), [accounts, baseCurrency, transactions]);
+
+  const refreshRates = useCallback(async () => {
+    if (!userId || !isOnline) return;
+    const currencies = currencyKey ? currencyKey.split(",") : [];
+    const quoteCurrencies = currencies.filter((currency) => currency !== baseCurrency && supportedCurrencies.some((supported) => supported.code === currency));
+    if (quoteCurrencies.length === 0) {
+      setRatesToBase({ [baseCurrency]: 1 });
+      setRateDate(null);
+      setRatesError(null);
+      return;
+    }
+
+    setIsRefreshingRates(true);
+    setRatesError(null);
+    try {
+      const rows = await fetchLatestRates(baseCurrency, quoteCurrencies);
+      const nextRates = invertRatesToBase(baseCurrency, rows);
+      setRatesToBase(nextRates);
+      setRateDate(rows[0]?.date ?? null);
+
+      if (rows.length > 0) {
+        const fetchedAt = new Date().toISOString();
+        const payload = rows.map((row) => ({
+          user_id: userId,
+          base_currency: row.base,
+          quote_currency: row.quote,
+          rate: row.rate,
+          rate_date: row.date,
+          source: "frankfurter",
+          fetched_at: fetchedAt,
+        }));
+        const { error: cacheError } = await createClient().from("exchange_rates").upsert(payload, { onConflict: "user_id,base_currency,quote_currency,rate_date" });
+        if (cacheError) {
+          toast({ title: "Rates refreshed locally", description: "The latest rates are available for this session, but could not be cached in Supabase.", variant: "warning" });
+        }
+      }
+    } catch (rateError) {
+      const message = getErrorMessage(rateError);
+      setRatesError(message);
+      toast({ title: "Could not refresh exchange rates", description: message, variant: "warning" });
+    } finally {
+      setIsRefreshingRates(false);
+    }
+  }, [baseCurrency, currencyKey, isOnline, toast, userId]);
+
+  useEffect(() => {
+    void refreshRates();
+  }, [refreshRates]);
 
   const openCreateAccount = () => {
     setEditingAccount(null);
@@ -341,7 +424,10 @@ export default function FinancePage() {
   };
 
   const openEditTransaction = (transaction: Transaction) => {
-    setEditingTransaction(transaction);
+    const destination = transaction.transfer_group_id
+      ? transactions.find((item) => item.transfer_group_id === transaction.transfer_group_id && item.transfer_direction === "credit")
+      : null;
+    setEditingTransaction(destination ? { ...transaction, to_amount: destination.amount } : transaction);
     setTransactionSheetOpen(true);
   };
 
@@ -350,19 +436,28 @@ export default function FinancePage() {
     setIsCreatingTransaction(true);
     try {
       const supabase = createClient();
-      const serialized = serializeTransaction(input);
 
       if (input.type === "transfer") {
-        const rpcName = editingTransaction ? "update_transfer_transaction" : "create_transfer_transaction";
+        const destinationAccount = accounts.find((account) => account.id === input.to_account_id);
+        const sourceCurrency = accounts.find((account) => account.id === input.account_id)?.currency ?? input.currency;
+        const destinationCurrency = destinationAccount?.currency;
+        const sourceExchangeRate = convertToBase(1, sourceCurrency, baseCurrency, ratesToBase);
+        const destinationExchangeRate = destinationCurrency ? convertToBase(1, destinationCurrency, baseCurrency, ratesToBase) : null;
+        if (!destinationCurrency || sourceExchangeRate === null || destinationExchangeRate === null) {
+          throw new Error("No exchange rate is available for this transfer. Refresh rates and try again.");
+        }
+        const destinationAmount = input.to_amount ?? input.amount;
+        const rpcName = editingTransaction ? "update_currency_transfer_transaction" : "create_currency_transfer_transaction";
         const rpcArgs = editingTransaction
           ? {
               p_transaction_id: editingTransaction.id,
               p_from_account_id: input.account_id,
               p_to_account_id: input.to_account_id,
-              p_amount: input.amount,
-              p_currency: input.currency,
-              p_exchange_rate: input.exchange_rate,
-              p_occurred_at: serialized.occurred_at,
+              p_from_amount: input.amount,
+              p_to_amount: destinationAmount,
+              p_from_exchange_rate: sourceExchangeRate,
+              p_to_exchange_rate: destinationExchangeRate,
+              p_occurred_at: input.occurred_at.toISOString().slice(0, 10),
               p_status: input.status,
               p_category: input.category,
               p_payee: input.payee,
@@ -372,10 +467,11 @@ export default function FinancePage() {
           : {
               p_from_account_id: input.account_id,
               p_to_account_id: input.to_account_id,
-              p_amount: input.amount,
-              p_currency: input.currency,
-              p_exchange_rate: input.exchange_rate,
-              p_occurred_at: serialized.occurred_at,
+              p_from_amount: input.amount,
+              p_to_amount: destinationAmount,
+              p_from_exchange_rate: sourceExchangeRate,
+              p_to_exchange_rate: destinationExchangeRate,
+              p_occurred_at: input.occurred_at.toISOString().slice(0, 10),
               p_status: input.status,
               p_category: input.category,
               p_payee: input.payee,
@@ -384,12 +480,19 @@ export default function FinancePage() {
             };
         const { error: transferError } = await supabase.rpc(rpcName, rpcArgs);
         if (transferError) throw transferError;
-      } else if (editingTransaction) {
+      } else {
+        const exchangeRate = convertToBase(1, input.currency, baseCurrency, ratesToBase);
+        if (exchangeRate === null) {
+          throw new Error("No exchange rate is available for " + input.currency + " to " + baseCurrency + ". Refresh rates and try again.");
+        }
+        const serialized = serializeTransaction({ ...input, exchange_rate: exchangeRate });
+        if (editingTransaction) {
         const { error: updateError } = await supabase.from("transactions").update(serialized).eq("id", editingTransaction.id).eq("user_id", userId);
         if (updateError) throw updateError;
-      } else {
-        const { error: insertError } = await supabase.from("transactions").insert({ ...serialized, user_id: userId });
-        if (insertError) throw insertError;
+        } else {
+          const { error: insertError } = await supabase.from("transactions").insert({ ...serialized, user_id: userId });
+          if (insertError) throw insertError;
+        }
       }
 
       await loadFinanceData();
@@ -432,9 +535,10 @@ export default function FinancePage() {
     });
   }, [accounts, search, statusFilter, transactions, typeFilter]);
 
-  const totalBalance = activeAccounts.reduce((sum, account) => sum + balanceForAccount(account, transactions), 0);
-  const income = transactions.filter((transaction) => transaction.type === "income" || transaction.type === "refund").reduce((sum, transaction) => sum + transaction.amount, 0);
-  const expenses = transactions.filter((transaction) => transaction.type === "expense").reduce((sum, transaction) => sum + transaction.amount, 0);
+  const missingRateCurrencies = activeAccounts.filter((account) => account.currency !== baseCurrency && !ratesToBase[account.currency]).map((account) => account.currency);
+  const totalBalance = activeAccounts.reduce((sum, account) => sum + (convertToBase(balanceForAccount(account, transactions), account.currency, baseCurrency, ratesToBase) ?? 0), 0);
+  const income = transactions.filter((transaction) => transaction.type === "income" || transaction.type === "refund").reduce((sum, transaction) => sum + (convertToBase(transaction.amount, transaction.currency, baseCurrency, ratesToBase, transaction.exchange_rate) ?? 0), 0);
+  const expenses = transactions.filter((transaction) => transaction.type === "expense").reduce((sum, transaction) => sum + (convertToBase(transaction.amount, transaction.currency, baseCurrency, ratesToBase, transaction.exchange_rate) ?? 0), 0);
   const pendingCount = transactions.filter((transaction) => transaction.status === "pending").length;
 
   if (!userId) {
@@ -462,6 +566,8 @@ export default function FinancePage() {
           <StatCard label="Money out" value={formatMoney(expenses)} helper="Expenses recorded" icon={TrendingDown} tone="danger" />
           <StatCard label="Needs attention" value={pendingCount.toString().padStart(2, "0")} helper="Pending transactions" icon={Clock3} tone="warning" />
         </section>
+
+        <Card className="border-border/70 bg-gradient-card shadow-card"><CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-4"><span className="rounded-2xl bg-info/15 p-3 text-info"><CircleDollarSign className="h-5 w-5" /></span><div><p className="font-semibold">Reporting currency: {baseCurrency}</p><p className="mt-1 text-sm text-muted-foreground">{rateDate ? "Rates as of " + new Date(rateDate).toLocaleDateString() : "Rates will be loaded when you use more than one currency."}{missingRateCurrencies.length > 0 ? " Missing: " + [...new Set(missingRateCurrencies)].join(", ") : ""}</p>{ratesError && <p className="mt-1 text-xs text-warning">{ratesError}</p>}<Link href="/profile" className="mt-2 inline-flex text-xs font-semibold text-primary hover:underline">Change base currency in profile</Link></div></div><Button variant="outline" onClick={() => void refreshRates()} disabled={isRefreshingRates || !isOnline}>{isRefreshingRates ? <><Loader2 className="h-4 w-4 animate-spin" /> Refreshing...</> : <><RefreshCw className="h-4 w-4" /> Refresh rates</>}</Button></CardContent></Card>
 
         <section className="grid gap-6 xl:grid-cols-[1.05fr_1.95fr]">
           <Card className="border-border/70 bg-gradient-card shadow-card"><CardHeader className="flex flex-row items-center justify-between"><div><CardTitle>Accounts</CardTitle><p className="mt-1 text-sm text-muted-foreground">Where your money lives</p></div><button onClick={openCreateAccount} className="rounded-lg p-2 text-muted-foreground transition hover:bg-secondary hover:text-foreground" aria-label="Add account"><Plus className="h-4 w-4" /></button></CardHeader><CardContent className="space-y-3">{isLoading ? <LoadingRows count={3} /> : activeAccounts.length === 0 ? <EmptyAccounts onAdd={openCreateAccount} /> : activeAccounts.map((account) => <AccountCard key={account.id} account={account} balance={balanceForAccount(account, transactions)} onEdit={() => openEditAccount(account)} onArchive={() => setAccountToArchive(account)} />)}{!isLoading && archivedAccounts.length > 0 && <div className="space-y-3 border-t border-border/60 pt-5"><div className="flex items-center justify-between"><p className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Archived accounts</p><Badge variant="outline" className="border-muted-foreground/30 text-muted-foreground">{archivedAccounts.length}</Badge></div>{archivedAccounts.map((account) => <AccountCard key={account.id} account={account} balance={balanceForAccount(account, transactions)} onEdit={() => openEditAccount(account)} onRestore={() => setAccountToArchive(account)} />)}</div>}</CardContent></Card>

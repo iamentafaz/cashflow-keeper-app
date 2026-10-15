@@ -57,6 +57,28 @@ export interface PayeeInput {
   default_category_id?: string | null;
 }
 
+export interface ExchangeRate {
+  id?: string;
+  user_id: string | null;
+  base_currency: string;
+  quote_currency: string;
+  rate: number;
+  rate_date: string;
+  source: string;
+  fetched_at?: string;
+}
+
+export interface ExchangeRateRow {
+  id?: string;
+  user_id?: string | null;
+  base_currency: string;
+  quote_currency: string;
+  rate: number | string;
+  rate_date: string;
+  source?: string | null;
+  fetched_at?: string;
+}
+
 export interface Account {
   id: string;
   name: string;
@@ -93,6 +115,7 @@ export interface Transaction {
   type: TransactionType;
   transfer_group_id: string | null;
   transfer_direction: TransferDirection | null;
+  to_amount?: number | null;
   amount: number;
   currency: string;
   exchange_rate: number;
@@ -116,6 +139,7 @@ export interface TransactionRow {
   type: TransactionType;
   transfer_group_id?: string | null;
   transfer_direction?: TransferDirection | null;
+  to_amount?: number | string | null;
   amount: number | string;
   currency?: string | null;
   exchange_rate?: number | string | null;
@@ -136,6 +160,7 @@ export interface TransactionInput {
   account_id: string;
   to_account_id?: string | null;
   type: TransactionType;
+  to_amount?: number | null;
   amount: number;
   currency: string;
   exchange_rate: number;
@@ -201,6 +226,7 @@ export function normalizeTransaction(row: TransactionRow): Transaction {
     type: row.type,
     transfer_group_id: row.transfer_group_id ?? null,
     transfer_direction: row.transfer_direction ?? (row.type === "transfer" ? "debit" : null),
+    to_amount: row.to_amount == null ? null : Number(row.to_amount),
     amount: Number(row.amount),
     currency: row.currency || "INR",
     exchange_rate: Number(row.exchange_rate) || 1,
