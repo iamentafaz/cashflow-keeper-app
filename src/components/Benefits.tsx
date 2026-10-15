@@ -1,114 +1,51 @@
+import Link from "next/link";
+import { ArrowRight, Check, FileCheck2, LockKeyhole, SlidersHorizontal } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Check, DollarSign, Clock, Users, Award } from "lucide-react";
 
-const Benefits = () => {
-  const benefits = [
-    {
-      icon: <DollarSign className="w-6 h-6" />,
-      title: "Save More Money",
-      description: "Users typically save 23% more per month by tracking expenses with our platform.",
-      stat: "23% Average Savings Increase"
-    },
-    {
-      icon: <Clock className="w-6 h-6" />,
-      title: "Save Time",
-      description: "Automated categorization and receipt scanning save hours of manual entry each month.",
-      stat: "5+ Hours Saved Monthly"
-    },
-    {
-      icon: <Users className="w-6 h-6" />,
-      title: "Better Family Planning",
-      description: "Shared budgets and collaborative tracking help families achieve financial harmony.",
-      stat: "Family Accounts Available"
-    },
-    {
-      icon: <Award className="w-6 h-6" />,
-      title: "Expert Insights",
-      description: "Get personalized recommendations based on your spending patterns and goals.",
-      stat: "AI-Powered Recommendations"
-    }
-  ];
+const benefits = [
+  { icon: SlidersHorizontal, title: "Flexible enough for real life", description: "Use the accounts, currencies, categories, and payees that match how you actually manage money." },
+  { icon: FileCheck2, title: "A record you can trust", description: "Keep status, reconciliation, linked transfers, and receipts together instead of scattered across tools." },
+  { icon: LockKeyhole, title: "Control without clutter", description: "Archive what is no longer active, keep ownership boundaries in place, and maintain a focused workspace." },
+];
 
-  const features = [
-    "Real-time expense tracking",
-    "Automated bank synchronization",
-    "Custom budget categories",
-    "Receipt photo capture",
-    "Spending trend analysis",
-    "Goal progress tracking",
-    "Multi-currency support",
-    "Export to tax software",
-    "Bill reminder alerts",
-    "Secure data encryption"
-  ];
+const included = [
+  "Bank, cash, credit-card, and wallet accounts",
+  "Income, expense, refund, and linked transfers",
+  "Categories, subcategories, and payees",
+  "Reporting currency and exchange-rate caching",
+  "Pending, cleared, and reconciled statuses",
+  "Private receipt attachments up to 5 MB",
+  "Profile details and OTP password change",
+];
 
-  return (
-    <section className="bg-background py-24">
-      <div className="container mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-16 items-start">
-          {/* Benefits Cards */}
-          <div>
-            <p className="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-accent">A better view of your money</p>
-            <h2 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl">
-              Why Choose Our
-              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent block">
-                Expense Manager?
-              </span>
-            </h2>
-            <p className="text-xl text-muted-foreground mb-8">
-              More than just expense tracking - it's your complete financial wellness platform.
-            </p>
-
-            <div className="space-y-6">
-              {benefits.map((benefit, index) => (
-                <Card key={index} className={`group animate-fade-in-up border-border/70 bg-gradient-card p-6 shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-elegant [animation-delay:${index * 80}ms]`}>
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-accent/10 text-accent transition-transform duration-300 group-hover:rotate-[-6deg] group-hover:scale-105">
-                      {benefit.icon}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold mb-2">{benefit.title}</h3>
-                      <p className="text-muted-foreground mb-3">{benefit.description}</p>
-                      <div className="text-sm font-medium text-primary bg-primary/5 px-3 py-1 rounded-full inline-block">
-                        {benefit.stat}
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </div>
-
-          {/* Features List */}
-          <div>
-            <Card className="sticky top-24 border-primary/10 bg-gradient-to-br from-primary/10 to-accent/10 p-8 shadow-elegant">
-              <h3 className="text-2xl font-bold mb-6">Everything Included</h3>
-              <div className="space-y-4">
-                {features.map((feature, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <div className="w-6 h-6 bg-success rounded-full flex items-center justify-center flex-shrink-0">
-                      <Check className="w-4 h-4 text-white" />
-                    </div>
-                    <span className="text-foreground font-medium">{feature}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-8 rounded-2xl border border-primary/10 bg-card/80 p-6 backdrop-blur-sm">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-primary mb-2">Free</div>
-                  <div className="text-muted-foreground mb-4">14-day trial, no credit card required</div>
-                  <div className="text-sm text-muted-foreground">
-                    Then just $9.99/month with premium features
-                  </div>
-                </div>
-              </div>
-            </Card>
+const Benefits = () => (
+  <section className="bg-background py-24">
+    <div className="container mx-auto px-4">
+      <div className="grid items-start gap-16 lg:grid-cols-2">
+        <div>
+          <p className="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-accent">Designed for everyday clarity</p>
+          <h2 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl">A complete money record, without the overwhelm.</h2>
+          <p className="mb-8 text-xl leading-relaxed text-muted-foreground">KipCash gives each part of your financial routine a place, so you can move from capture to understanding without losing the details.</p>
+          <div className="space-y-5">
+            {benefits.map(({ icon: Icon, title, description }, index) => (
+              <Card key={title} className={"group animate-fade-in-up border-border/70 bg-gradient-card p-5 shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-elegant [animation-delay:" + index * 80 + "ms]"}>
+                <div className="flex items-start gap-4"><div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent/10 text-accent transition-transform duration-300 group-hover:rotate-[-6deg] group-hover:scale-105"><Icon className="h-5 w-5" /></div><div><h3 className="text-lg font-semibold">{title}</h3><p className="mt-1 text-muted-foreground">{description}</p></div></div>
+              </Card>
+            ))}
           </div>
         </div>
+        <Card className="border-primary/10 bg-gradient-to-br from-primary/10 to-accent/10 p-8 shadow-elegant lg:sticky lg:top-24">
+          <p className="text-sm font-bold uppercase tracking-[0.16em] text-primary">Included from day one</p>
+          <h3 className="mb-6 mt-3 text-3xl font-bold">Everything you need to manage the ledger</h3>
+          <div className="space-y-4">
+            {included.map((item) => <div key={item} className="flex items-start gap-3"><span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-success text-white"><Check className="h-4 w-4" /></span><span className="font-medium text-foreground">{item}</span></div>)}
+          </div>
+          <div className="mt-8 rounded-2xl border border-primary/10 bg-card/80 p-6 backdrop-blur-sm"><p className="text-lg font-semibold">Start with one account.</p><p className="mt-2 text-sm leading-relaxed text-muted-foreground">Add more detail as your routine grows. The workspace is ready when you are.</p><Button asChild variant="hero" className="mt-5 w-full"><Link href="/accounts" prefetch={false}>Set up accounts <ArrowRight className="h-4 w-4" /></Link></Button></div>
+        </Card>
       </div>
-    </section>
-  );
-};
+    </div>
+  </section>
+);
 
 export default Benefits;

@@ -43,7 +43,7 @@ export const userSlice = createSlice({
         })
         builder.addCase(userSignIn.fulfilled, (state, action) => {
             console.log('payload', action)
-            if(action.payload.session) {
+            if('session' in action.payload && action.payload.session) {
                 state.user = action.payload.session.user
                 state.session = action.payload.session
             }

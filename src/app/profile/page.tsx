@@ -30,9 +30,10 @@ function isProfileSchemaError(error: { code?: string; message?: string } | null)
 
 export default function ProfilePage() {
   const user = useSelector((state: RootState) => state.user.user);
-  const userId = typeof user?.id === "string" ? user.id : null;
-  const email = typeof user?.email === "string" ? user.email : "";
-  const fallbackName = typeof user?.user_metadata?.name === "string" ? user.user_metadata.name : "";
+  const authUser = user as { id?: unknown; email?: unknown; user_metadata?: { name?: unknown } } | null;
+  const userId = typeof authUser?.id === "string" ? authUser.id : null;
+  const email = typeof authUser?.email === "string" ? authUser.email : "";
+  const fallbackName = typeof authUser?.user_metadata?.name === "string" ? authUser.user_metadata.name : "";
   const isOnline = useOnlineStatus();
   const { toast } = useToast();
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -119,13 +120,13 @@ export default function ProfilePage() {
   };
 
   if (!userId) {
-    return <div className="container mx-auto px-4 py-16"><Card className="mx-auto max-w-lg text-center"><CardContent className="space-y-4 py-12"><UserRound className="mx-auto h-10 w-10 text-primary" /><h1 className="text-2xl font-semibold">Sign in to view your profile</h1><p className="text-muted-foreground">Your profile and security settings are private to your account.</p><Link href="/" className="text-primary underline">Return home to sign in</Link></CardContent></Card></div>;
+    return <div className="container mx-auto px-4 py-16"><Card className="mx-auto max-w-lg text-center"><CardContent className="space-y-4 py-12"><UserRound className="mx-auto h-10 w-10 text-primary" /><h1 className="text-2xl font-semibold">Sign in to view your profile</h1><p className="text-muted-foreground">Your profile and security settings are private to your account.</p><Link href="/" prefetch={false} className="text-primary underline">Return home to sign in</Link></CardContent></Card></div>;
   }
 
   return (
     <div className="min-h-screen bg-gradient-subtle px-4 py-6 md:px-8 md:py-10">
       <div className="mx-auto max-w-6xl space-y-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><Link href="/finance" className="mb-4 inline-flex items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground"><ArrowLeft className="h-4 w-4" /> Back to money workspace</Link><p className="text-sm font-bold uppercase tracking-[0.18em] text-accent">Account settings</p><h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-5xl">Your profile</h1><p className="mt-3 text-muted-foreground">Keep your personal details and account security up to date.</p></div><div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-hero text-xl font-bold text-primary-foreground shadow-button">{initials}</div></div>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><Link href="/finance" prefetch={false} className="mb-4 inline-flex items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground"><ArrowLeft className="h-4 w-4" /> Back to money workspace</Link><p className="text-sm font-bold uppercase tracking-[0.18em] text-accent">Account settings</p><h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-5xl">Your profile</h1><p className="mt-3 text-muted-foreground">Keep your personal details and account security up to date.</p></div><div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-hero text-xl font-bold text-primary-foreground shadow-button">{initials}</div></div>
 
         {!isOnline && <div role="status" className="flex items-center gap-3 rounded-2xl border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning"><CircleAlert className="h-4 w-4" /> You are offline. Reconnect before saving profile changes.</div>}
         {error && <div role="alert" className="flex flex-col gap-3 rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive sm:flex-row sm:items-center sm:justify-between"><span>{error}</span><Button size="sm" variant="outline" onClick={() => void loadProfile()} disabled={!isOnline}><Loader2 className="h-4 w-4" /> Retry</Button></div>}

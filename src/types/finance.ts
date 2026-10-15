@@ -79,6 +79,62 @@ export interface ExchangeRateRow {
   fetched_at?: string;
 }
 
+export interface TransactionAttachment {
+  id: string;
+  transaction_id: string;
+  storage_path: string;
+  file_name: string;
+  mime_type: string | null;
+  file_size: number | null;
+  captured_at: string | null;
+  merchant_name: string | null;
+  receipt_total: number | null;
+  receipt_metadata: Record<string, unknown>;
+  created_at?: string;
+}
+
+export interface TransactionAttachmentRow {
+  id: string;
+  transaction_id: string;
+  storage_path: string;
+  file_name: string;
+  mime_type?: string | null;
+  file_size?: number | string | null;
+  captured_at?: string | null;
+  merchant_name?: string | null;
+  receipt_total?: number | string | null;
+  receipt_metadata?: Record<string, unknown> | null;
+  created_at?: string;
+}
+
+export interface ReconciliationSession {
+  id: string;
+  account_id: string;
+  statement_date: string;
+  statement_balance: number;
+  book_balance: number;
+  difference: number;
+  reconciled_transaction_count: number;
+  notes: string | null;
+  status: "completed";
+  completed_at: string;
+  created_at?: string;
+}
+
+export interface ReconciliationSessionRow {
+  id: string;
+  account_id: string;
+  statement_date: string;
+  statement_balance: number | string;
+  book_balance: number | string;
+  difference: number | string;
+  reconciled_transaction_count?: number | string | null;
+  notes?: string | null;
+  status?: "completed" | null;
+  completed_at: string;
+  created_at?: string;
+}
+
 export interface Account {
   id: string;
   name: string;
@@ -208,6 +264,38 @@ export function normalizePayee(row: PayeeRow): Payee {
     name: row.name,
     default_category_id: row.default_category_id ?? null,
     archived: Boolean(row.archived),
+    created_at: row.created_at,
+  };
+}
+
+export function normalizeAttachment(row: TransactionAttachmentRow): TransactionAttachment {
+  return {
+    id: row.id,
+    transaction_id: row.transaction_id,
+    storage_path: row.storage_path,
+    file_name: row.file_name,
+    mime_type: row.mime_type ?? null,
+    file_size: row.file_size == null ? null : Number(row.file_size),
+    captured_at: row.captured_at ?? null,
+    merchant_name: row.merchant_name ?? null,
+    receipt_total: row.receipt_total == null ? null : Number(row.receipt_total),
+    receipt_metadata: row.receipt_metadata ?? {},
+    created_at: row.created_at,
+  };
+}
+
+export function normalizeReconciliationSession(row: ReconciliationSessionRow): ReconciliationSession {
+  return {
+    id: row.id,
+    account_id: row.account_id,
+    statement_date: row.statement_date,
+    statement_balance: Number(row.statement_balance),
+    book_balance: Number(row.book_balance),
+    difference: Number(row.difference),
+    reconciled_transaction_count: Number(row.reconciled_transaction_count) || 0,
+    notes: row.notes ?? null,
+    status: row.status ?? "completed",
+    completed_at: row.completed_at,
     created_at: row.created_at,
   };
 }

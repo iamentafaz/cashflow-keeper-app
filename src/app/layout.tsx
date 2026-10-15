@@ -4,7 +4,7 @@ import { Providers } from './providers'
 
 export const metadata: Metadata = {
   title: 'KipCash',
-  description: 'Track expenses and understand your cash flow.',
+  description: 'A focused personal finance workspace for accounts, transactions, currencies, receipts, and reconciliation.',
 }
 
 export default function RootLayout({

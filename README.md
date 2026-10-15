@@ -12,7 +12,12 @@ npm run dev
 The app runs on the Next.js App Router. The main routes are:
 
 - `/` — landing page
-- `/finance` — accounts, balances, and unified transactions workspace
+- `/finance` — accounts, balances, and unified transactions overview
+- `/accounts` — focused account management workspace
+- `/transactions` — focused transaction management workspace
+- `/categories` — searchable category and subcategory management
+- `/payees` — searchable payee and merchant management
+- `/reconciliation` — focused account reconciliation workspace
 - `/profile` — personal details and password security
 
 The former `/manage-expenses` and `/expenses` URLs redirect to `/finance` so existing bookmarks continue to work.
@@ -23,7 +28,7 @@ Before using profile editing, apply [`supabase/migrations/20261013180000_add_pro
 
 Before using `/finance`, apply [`supabase/schema/finance-workspace.sql`](supabase/schema/finance-workspace.sql) in the Supabase SQL editor. The screen shows a setup message if the new tables are not available yet.
 
-After applying the finance schema, apply [`supabase/migrations/20261014100000_transaction_lifecycle.sql`](supabase/migrations/20261014100000_transaction_lifecycle.sql) to enable editable/deletable transactions and linked debit/credit transfer records. Apply [`supabase/migrations/20261013190000_account_archive_only.sql`](supabase/migrations/20261013190000_account_archive_only.sql) to prevent account deletion and use archive/restore instead. Apply [`supabase/migrations/20261014110000_categories_payees_management.sql`](supabase/migrations/20261014110000_categories_payees_management.sql) to enable managed categories, subcategories, payees, and transaction ownership checks. Apply [`supabase/migrations/20261015100000_currency_exchange_management.sql`](supabase/migrations/20261015100000_currency_exchange_management.sql) to secure user exchange-rate caching and validate profile currencies.
+After applying the finance schema, apply [`supabase/migrations/20261014100000_transaction_lifecycle.sql`](supabase/migrations/20261014100000_transaction_lifecycle.sql) to enable editable/deletable transactions and linked debit/credit transfer records. Apply [`supabase/migrations/20261013190000_account_archive_only.sql`](supabase/migrations/20261013190000_account_archive_only.sql) to prevent account deletion and use archive/restore instead. Apply [`supabase/migrations/20261014110000_categories_payees_management.sql`](supabase/migrations/20261014110000_categories_payees_management.sql) to enable managed categories, subcategories, payees, and transaction ownership checks. Apply [`supabase/migrations/20261015100000_currency_exchange_management.sql`](supabase/migrations/20261015100000_currency_exchange_management.sql) to secure user exchange-rate caching and validate profile currencies. Apply [`supabase/migrations/20261016100000_reconciliation_and_receipts.sql`](supabase/migrations/20261016100000_reconciliation_and_receipts.sql) to enable reconciliation history and the private 5 MB receipts bucket.
 
 ## Environment variables
 
