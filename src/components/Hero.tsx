@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeftRight, ArrowRight, CheckCircle2, ReceiptText, ShieldCheck, WalletCards } from "lucide-react";
+import { ArrowLeftRight, ArrowRight, BarChart3, CheckCircle2, ReceiptText, ShieldCheck, WalletCards } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -23,7 +23,7 @@ const Hero = () => {
                 <span className="block bg-gradient-hero bg-clip-text text-transparent">every rupee.</span>
               </h1>
               <p className="max-w-xl text-lg leading-relaxed text-muted-foreground lg:text-xl">
-                KipCash brings accounts, transactions, categories, currencies, receipts, and reconciliation into one calm, focused workspace.
+                KipCash brings accounts, transactions, reports, categories, currencies, receipts, and reconciliation into one calm, focused workspace.
               </p>
             </div>
 
@@ -55,10 +55,11 @@ const Hero = () => {
                   </div>
                   <span className="rounded-xl bg-success/10 px-3 py-2 text-xs font-semibold text-success">This month +12.4%</span>
                 </div>
-                <div className="grid gap-3 sm:grid-cols-3">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   <PreviewMetric label="Accounts" value="4 active" icon={<WalletCards className="h-4 w-4" />} tone="text-primary" />
                   <PreviewMetric label="Transactions" value="128 logged" icon={<ArrowLeftRight className="h-4 w-4" />} tone="text-accent" />
                   <PreviewMetric label="Receipts" value="18 attached" icon={<ReceiptText className="h-4 w-4" />} tone="text-warning" />
+                  <PreviewMetric label="Reports" value="Live insights" icon={<BarChart3 className="h-4 w-4" />} tone="text-info" />
                 </div>
                 <div className="mt-5 space-y-3">
                   <PreviewRow label="Salary · Main bank" amount="+₹72,000" tone="text-success" status="Cleared" />

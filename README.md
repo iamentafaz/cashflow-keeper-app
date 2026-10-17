@@ -13,6 +13,7 @@ The app runs on the Next.js App Router. The main routes are:
 
 - `/` — landing page
 - `/finance` — accounts, balances, and unified transactions overview
+- `/reports` — cash-flow, spending, account-balance, and transaction-health insights
 - `/accounts` — focused account management workspace
 - `/transactions` — focused transaction management workspace
 - `/categories` — searchable category and subcategory management

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeftRight, ArrowRight, BookOpenCheck, FolderTree, WalletCards } from "lucide-react";
+import { ArrowLeftRight, ArrowRight, BarChart3, BookOpenCheck, FolderTree, WalletCards } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -31,6 +31,15 @@ const HowItWorks = () => (
           </div>
         ))}
       </div>
+      <Card className="mx-auto mb-16 max-w-4xl border-accent/20 bg-gradient-to-r from-accent/10 via-card/80 to-primary/10 p-6 shadow-card sm:p-8">
+        <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-accent/15 text-accent"><BarChart3 className="h-6 w-6" /></div>
+            <div><p className="text-sm font-bold uppercase tracking-[0.16em] text-accent">Step 05 · Understand the pattern</p><h3 className="mt-2 text-2xl font-bold">Turn your records into useful insight.</h3><p className="mt-2 max-w-2xl text-muted-foreground">Use interactive cash-flow, category, balance, and transaction-health charts to see what is happening across your money.</p></div>
+          </div>
+          <Button asChild variant="outline" className="shrink-0"><Link href="/reports" prefetch={false}>View reports <ArrowRight className="h-4 w-4" /></Link></Button>
+        </div>
+      </Card>
       <div className="text-center">
         <Card className="mx-auto max-w-2xl border-primary/10 bg-gradient-to-r from-primary/10 to-accent/10 p-8 shadow-card">
           <h3 className="mb-3 text-2xl font-bold">Ready to see your money clearly?</h3>

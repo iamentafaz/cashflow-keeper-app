@@ -12,6 +12,7 @@ const benefits = [
 const included = [
   "Bank, cash, credit-card, and wallet accounts",
   "Income, expense, refund, and linked transfers",
+  "Interactive cash-flow and spending reports",
   "Categories, subcategories, and payees",
   "Reporting currency and exchange-rate caching",
   "Pending, cleared, and reconciled statuses",

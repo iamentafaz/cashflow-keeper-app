@@ -71,6 +71,7 @@ export function TransactionForm({ accounts, categories, payees, onSave, initialT
   const rootCategories = useMemo(() => categories.filter((item) => !item.archived && !item.parent_id && (type === "income" || type === "refund" ? item.kind === "income" || item.kind === "both" : item.kind === "expense" || item.kind === "both")), [categories, type]);
   const subcategories = useMemo(() => categories.filter((item) => !item.archived && item.parent_id === categoryId), [categories, categoryId]);
   const activePayees = useMemo(() => payees.filter((item) => !item.archived), [payees]);
+  const hasSavedPayees = activePayees.length > 0;
 
   const handleCategoryChange = (value: string) => {
     if (value === "custom") {
@@ -205,15 +206,15 @@ export function TransactionForm({ accounts, categories, payees, onSave, initialT
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label>Payee / merchant</Label>
-          <Select value={payeeId || "custom"} onValueChange={handlePayeeChange} disabled={disabled || isSaving}>
+          <Label htmlFor="transaction-payee">Payee / merchant</Label>
+          {hasSavedPayees ? <Select value={payeeId || "custom"} onValueChange={handlePayeeChange} disabled={disabled || isSaving}>
             <SelectTrigger><SelectValue placeholder="Choose payee" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="custom">Type a payee manually</SelectItem>
+              <SelectItem value="custom">Enter manually</SelectItem>
               {activePayees.map((item) => <SelectItem key={item.id} value={item.id}>{item.name}</SelectItem>)}
             </SelectContent>
-          </Select>
-          {!payeeId && <Input id="transaction-payee" placeholder="e.g. Swiggy, salary, rent" value={payee} onChange={(event) => setPayee(event.target.value)} disabled={disabled || isSaving} />}
+          </Select> : <p className="rounded-xl border border-dashed border-border bg-secondary/30 px-3 py-2 text-xs text-muted-foreground">No saved payees yet. Enter one manually below.</p>}
+          {(!hasSavedPayees || !payeeId) && <Input id="transaction-payee" placeholder="e.g. Swiggy, salary, rent" value={payee} onChange={(event) => { setPayeeId(""); setPayee(event.target.value); }} disabled={disabled || isSaving} />}
         </div>
         <div className="space-y-2">
           <Label>Category</Label>

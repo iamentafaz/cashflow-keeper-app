@@ -1,9 +1,10 @@
-import { ArrowLeftRight, BookOpenCheck, FolderTree, Globe2, Paperclip, Receipt, ShieldCheck, Store, WalletCards } from "lucide-react";
+import { ArrowLeftRight, BarChart3, BookOpenCheck, FolderTree, Globe2, Paperclip, Receipt, ShieldCheck, Store, WalletCards } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 const features = [
   { icon: WalletCards, title: "Account hub", description: "Manage bank, cash, credit-card, and wallet accounts with balances and archive/restore controls.", color: "text-primary" },
   { icon: ArrowLeftRight, title: "Complete transaction ledger", description: "Record income, expenses, refunds, and transfers. Transfers stay linked as matching debit and credit records.", color: "text-accent" },
+  { icon: BarChart3, title: "Reports and insights", description: "See cash-flow trends, spending by category, account balances, and transaction health through interactive charts.", color: "text-primary" },
   { icon: FolderTree, title: "Categories and subcategories", description: "Organize spending with your own category structure, then filter the ledger when you need clarity.", color: "text-warning" },
   { icon: Store, title: "Payees and merchants", description: "Keep a reusable list of merchants so recurring spending is easier to understand and search.", color: "text-info" },
   { icon: Globe2, title: "Multi-currency support", description: "Set a reporting currency, fetch exchange rates, and preserve the applied rate on each transaction.", color: "text-success" },
