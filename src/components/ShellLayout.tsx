@@ -31,11 +31,12 @@ interface ShellLayoutProps {
 
 export function ShellLayout({ onLogin, onLogout, children }: ShellLayoutProps) {
   const user = useSelector((state: RootState) => state.user.user)
+  const authUser = user as { id?: string | null; email?: string | null } | null;
   const pathname = usePathname()
   const { toast } = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const isAuthenticated = Boolean(user && 'email' in user && user.email);
-  const userEmail = isAuthenticated ? user.email as string : "";
+  const isAuthenticated = Boolean(authUser?.email);
+  const userEmail = authUser?.email || "";
 
   const isLinkActive = (href: string) => pathname === href || (href === "/finance" && pathname === "/");
   const getInitials = (email: string) => email.split("@")[0]?.charAt(0).toUpperCase() || "U";

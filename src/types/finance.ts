@@ -175,6 +175,7 @@ export interface Transaction {
   amount: number;
   currency: string;
   exchange_rate: number;
+  exchange_rate_base_currency: string;
   category_id: string | null;
   subcategory_id: string | null;
   category: string | null;
@@ -199,6 +200,7 @@ export interface TransactionRow {
   amount: number | string;
   currency?: string | null;
   exchange_rate?: number | string | null;
+  exchange_rate_base_currency?: string | null;
   category_id?: string | null;
   subcategory_id?: string | null;
   category?: string | null;
@@ -220,6 +222,7 @@ export interface TransactionInput {
   amount: number;
   currency: string;
   exchange_rate: number;
+  exchange_rate_base_currency?: string;
   category_id?: string | null;
   subcategory_id?: string | null;
   category?: string | null;
@@ -318,6 +321,7 @@ export function normalizeTransaction(row: TransactionRow): Transaction {
     amount: Number(row.amount),
     currency: row.currency || "INR",
     exchange_rate: Number(row.exchange_rate) || 1,
+    exchange_rate_base_currency: row.exchange_rate_base_currency || "INR",
     category_id: row.category_id ?? null,
     subcategory_id: row.subcategory_id ?? null,
     category: row.category ?? null,
@@ -349,6 +353,7 @@ export function serializeTransaction(input: TransactionInput) {
     amount: input.amount,
     currency: input.currency.trim().toUpperCase(),
     exchange_rate: input.exchange_rate,
+    exchange_rate_base_currency: input.exchange_rate_base_currency?.trim().toUpperCase() || "INR",
     category_id: input.category_id || null,
     subcategory_id: input.subcategory_id || null,
     category: input.category?.trim() || null,

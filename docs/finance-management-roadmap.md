@@ -6,7 +6,7 @@ Status reviewed: 2026-10-18
 
 ## Overall status
 
-- [ ] Complete reporting and analytics
+- [x] Complete reporting and analytics
 - [ ] Build budgets and savings goals
 - [ ] Build recurring transactions
 - [ ] Build import and export
@@ -20,7 +20,7 @@ Recommended delivery order:
 4. Recurring transactions
 5. Import and export
 
-## 1. Reporting and analytics — partially complete
+## 1. Reporting and analytics — complete
 
 Current implementation:
 
@@ -36,13 +36,13 @@ Current implementation:
 
 Remaining work:
 
-- [ ] Add spending by payee/merchant
-- [ ] Add spending by account
-- [ ] Add a true net-worth overview across assets and liabilities
-- [ ] Add period-over-period comparisons
-- [ ] Add custom date-range selection
-- [ ] Centralize and verify base-currency conversion across all reports
-- [ ] Move report aggregation to scalable database queries or reporting views
+- [x] Add spending by payee/merchant
+- [x] Add spending by account
+- [x] Add a true net-worth overview across assets and liabilities
+- [x] Add period-over-period comparisons
+- [x] Add custom date-range selection
+- [x] Centralize and verify base-currency conversion across all reports
+- [x] Move report aggregation to scalable database queries or reporting views
 
 ## 2. Budgets and savings goals — not started
 

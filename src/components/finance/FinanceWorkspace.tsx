@@ -211,7 +211,7 @@ export function FinanceWorkspace({ section = "overview" }: { section?: "overview
         supabase.from("accounts").select("id, name, type, currency, opening_balance, archived, created_at").eq("user_id", userId).order("created_at", { ascending: true }),
         supabase.from("categories").select("id, user_id, name, parent_id, kind, color, archived, created_at").order("name", { ascending: true }),
         supabase.from("payees").select("id, user_id, name, default_category_id, archived, created_at").eq("user_id", userId).order("name", { ascending: true }),
-        supabase.from("transactions").select("id, account_id, to_account_id, type, amount, currency, exchange_rate, category_id, subcategory_id, category, subcategory, payee_id, payee, description, occurred_at, status, notes, created_at, transfer_group_id, transfer_direction").eq("user_id", userId).order("occurred_at", { ascending: false }).order("created_at", { ascending: false }),
+        supabase.from("transactions").select("id, account_id, to_account_id, type, amount, currency, exchange_rate, exchange_rate_base_currency, category_id, subcategory_id, category, subcategory, payee_id, payee, description, occurred_at, status, notes, created_at, transfer_group_id, transfer_direction").eq("user_id", userId).order("occurred_at", { ascending: false }).order("created_at", { ascending: false }),
         supabase.from("profiles").select("default_currency").eq("id", userId).maybeSingle(),
         supabase.from("exchange_rates").select("id, user_id, base_currency, quote_currency, rate, rate_date, source, fetched_at").eq("user_id", userId).order("rate_date", { ascending: false }),
         supabase.from("transaction_attachments").select("id, transaction_id, storage_path, file_name, mime_type, file_size, captured_at, merchant_name, receipt_total, receipt_metadata, created_at").eq("user_id", userId).order("created_at", { ascending: false }),
@@ -519,7 +519,7 @@ export function FinanceWorkspace({ section = "overview" }: { section?: "overview
         if (exchangeRate === null) {
           throw new Error("No exchange rate is available for " + input.currency + " to " + baseCurrency + ". Refresh rates and try again.");
         }
-        const serialized = serializeTransaction({ ...input, exchange_rate: exchangeRate });
+        const serialized = serializeTransaction({ ...input, exchange_rate: exchangeRate, exchange_rate_base_currency: baseCurrency });
         if (editingTransaction) {
         const { error: updateError } = await supabase.from("transactions").update(serialized).eq("id", editingTransaction.id).eq("user_id", userId);
         if (updateError) throw updateError;

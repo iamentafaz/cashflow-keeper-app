@@ -56,6 +56,7 @@ create table if not exists public.transactions (
   amount numeric(14, 2) not null check (amount > 0),
   currency text not null default 'INR' check (currency ~ '^[A-Z]{3}$'),
   exchange_rate numeric(20, 8) not null default 1 check (exchange_rate > 0),
+  exchange_rate_base_currency text not null default 'INR' check (exchange_rate_base_currency ~ '^[A-Z]{3}$'),
   category_id uuid references public.categories(id) on delete set null,
   subcategory_id uuid references public.categories(id) on delete set null,
   category text,
@@ -93,6 +94,7 @@ create index if not exists accounts_user_id_idx on public.accounts(user_id);
 create index if not exists transactions_user_date_idx on public.transactions(user_id, occurred_at desc, created_at desc);
 create index if not exists transactions_account_id_idx on public.transactions(account_id);
 create index if not exists transactions_status_idx on public.transactions(user_id, status);
+create index if not exists transactions_user_reporting_filters_idx on public.transactions(user_id, occurred_at desc, account_id, category_id, payee_id);
 create index if not exists attachments_transaction_id_idx on public.transaction_attachments(transaction_id);
 
 alter table public.accounts enable row level security;
