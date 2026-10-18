@@ -6,7 +6,7 @@ import { ArrowLeftRight, BarChart3, BookOpenCheck, CircleUserRound, FolderTree, 
 import { RootState } from "@/store/store";
 import { useSelector } from "react-redux";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -33,6 +33,7 @@ export function ShellLayout({ onLogin, onLogout, children }: ShellLayoutProps) {
   const user = useSelector((state: RootState) => state.user.user)
   const authUser = user as { id?: string | null; email?: string | null } | null;
   const pathname = usePathname()
+  const router = useRouter();
   const { toast } = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isAuthenticated = Boolean(authUser?.email);
@@ -41,9 +42,14 @@ export function ShellLayout({ onLogin, onLogout, children }: ShellLayoutProps) {
   const isLinkActive = (href: string) => pathname === href || (href === "/finance" && pathname === "/");
   const getInitials = (email: string) => email.split("@")[0]?.charAt(0).toUpperCase() || "U";
 
+  const handleLogout = () => {
+    (onLogout || (() => {}))();
+    router.replace("/");
+  };
+
   const handleMobileLogout = () => {
     setMobileMenuOpen(false);
-    (onLogout || (() => {}))();
+    handleLogout();
     toast({ title: "Logged out", description: "You have been successfully logged out", variant: "info" });
   };
   
@@ -84,7 +90,7 @@ export function ShellLayout({ onLogin, onLogout, children }: ShellLayoutProps) {
               {isAuthenticated ? (
                 <>
                   <div className="hidden lg:block">
-                    <UserMenu userEmail={userEmail} onLogout={onLogout || (() => {})} />
+                    <UserMenu userEmail={userEmail} onLogout={handleLogout} />
                   </div>
                   <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                     <SheetTrigger asChild>
